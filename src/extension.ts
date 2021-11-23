@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import customTemplate from './template';
-import getSnippet from './getSnippet';
+import Snippet from './getSnippet';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -13,12 +13,9 @@ export function activate(context: vscode.ExtensionContext) {
 		// 	vscode.workspace.fs.createDirectory(newPath)
 		// }
 
-		/**
-		 * insert code
-		 */
-
 		// New editor
 		const editor = vscode.window.activeTextEditor
+		const curPosition = editor?.selection
 
 		// Select template
 		const name = await vscode.window.showQuickPick(customTemplate.map(i => i.name));
@@ -28,10 +25,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Create a new snippet
 		if (!template) return;
-		const code = await getSnippet(template);
-		const snippet = new vscode.SnippetString(code);
+		const mo = new Snippet(template, curPosition);
+		await mo.init();
+		const snippet = mo.getSnippet();
+		console.log('%cmo.autoImport', 'background-color: darkorange', mo.autoImport);
+
 		// insert text
-		editor?.insertSnippet(snippet);
+		editor?.insertSnippet(snippet, curPosition);
 	});
 
 
