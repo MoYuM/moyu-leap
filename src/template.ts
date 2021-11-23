@@ -3,7 +3,7 @@ import { CustomTemplate } from './interface';
 const customTemplate: CustomTemplate[] = [
   {
     "name": "Form",
-    "body": "<Form>\n\t{{children}}\n</Form>",
+    "body": "<Form \n\tname=\"{{name}}\"\n>\n\t{{children}}\n</Form>",
     "children": [
       {
         "name": "Input",

@@ -30,7 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!template) return;
 		const code = await getSnippet(template);
 		const snippet = new vscode.SnippetString(code);
-		console.log('%csnippet', 'background-color: darkorange', code);
 		// insert text
 		editor?.insertSnippet(snippet);
 	});
