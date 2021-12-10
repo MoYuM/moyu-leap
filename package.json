@@ -11,6 +11,7 @@
   ],
   "activationEvents": [
     "onCommand:moyu.add a antd form",
+    "onCommand:moyu.add a file",
     "onCommand:moyu.form with"
   ],
   "main": "./out/extension.js",
@@ -23,6 +24,10 @@
       {
         "command": "moyu.form with",
         "title": "form with"
+      },
+      {
+        "command": "moyu.add a file",
+        "title": "add a file"
       }
     ]
   },
