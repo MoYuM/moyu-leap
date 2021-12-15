@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import customTemplate from './template';
 import Snippet from './getSnippet';
 import createFile from './createFile';
+import createComponent from './createComponent';
 export function activate(context: vscode.ExtensionContext) {
 
 	// let addForm = vscode.commands.registerTextEditorCommand('moyu.add a antd form', async (edit) => {
@@ -28,17 +29,33 @@ export function activate(context: vscode.ExtensionContext) {
 	// });
 
 	let addFile = vscode.commands.registerTextEditorCommand('moyu.add a file', async () => {
-		// 创建文件夹
-		if (vscode.workspace.workspaceFolders) {
-			const rootPathURI = vscode.window.activeTextEditor?.document.uri
-			
-			const res = await createFile(rootPathURI, 'test.less')
-			if (res) {
-				vscode.window.showInformationMessage('创建成功');
-			} else {
-				vscode.window.showErrorMessage('创建失败')
-			}
+		const rootPathURI = vscode.window.activeTextEditor?.document.uri
+		const fileName = await vscode.window.showInputBox({ placeHolder: '请输入文件名称' })
+
+		const res = await createFile(rootPathURI, fileName);
+
+		if (res.result && res.uri) {
+			await vscode.window.showTextDocument(res.uri, { preview: false })
+			vscode.window.showInformationMessage('创建成功');
+		} else {
+			vscode.window.showErrorMessage('创建失败')
 		}
+	})
+
+	let addComponent = vscode.commands.registerTextEditorCommand('moyu.new component', async () => {
+		const rootPathURI = vscode.window.activeTextEditor?.document.uri
+		const componentName = await vscode.window.showInputBox({ placeHolder: '请输入新组件名称' })
+		if (!rootPathURI) return;
+
+		await createComponent(rootPathURI, componentName, 'currentPath')
+	})
+
+	let addComponentInGlobal = vscode.commands.registerTextEditorCommand('moyu.new component in global', async () => {
+		const rootPathURI = vscode.window.activeTextEditor?.document.uri
+		const componentName = await vscode.window.showInputBox({ placeHolder: '请输入新组件名称' })
+		if (!rootPathURI) return;
+
+		await createComponent(rootPathURI, componentName, 'global')
 	})
 
 
