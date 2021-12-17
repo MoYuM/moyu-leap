@@ -3,8 +3,9 @@
   "displayName": "moyu-template",
   "publisher": "moyum",
   "repository": "https://github.com/MoYuM/moyu-snippet",
-  "description": "moyu",
-  "version": "0.0.2",
+  "description": "包含了个人常用功能的vscode插件",
+  "icon": "images/icon.jpg",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.62.0"
   },
