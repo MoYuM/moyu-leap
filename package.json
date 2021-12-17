@@ -1,8 +1,8 @@
 {
   "name": "moyu",
-  "displayName": "moyu-pulgin",
+  "displayName": "moyu-template",
   "publisher": "moyum",
-  "repository": "https://github.com/MoYuM/moyu-pulgin",
+  "repository": "https://github.com/MoYuM/moyu-template",
   "description": "包含了个人常用功能的vscode插件",
   "icon": "images/icon.png",
   "version": "0.0.3",

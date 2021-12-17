@@ -1,6 +1,6 @@
-# Moyu
+# Moyu-Template
 
-个人 vs code 的配置
+对工作中常用功能，使用 vscode 插件的方式快速实现
 
 ## 功能
 
@@ -10,8 +10,3 @@
 | new component in global | 新建`@/components/#{componentName}/index.tsx`             |
 | new page                | 新建`@/pages/${pagename}/index.tsx`                       |
 | new file                | 新建一个文件在当前文件夹                                  |
-
-## TODO
-
-- [ ] 快捷键打 log
-- [ ] capslock
