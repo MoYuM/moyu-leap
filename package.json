@@ -1,6 +1,8 @@
 {
   "name": "moyu",
   "displayName": "moyu-template",
+  "publisher": "moyum",
+  "repository": "https://github.com/MoYuM/moyu-snippet",
   "description": "moyu",
   "version": "0.0.1",
   "engines": {
