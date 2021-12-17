@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	editor?.insertSnippet(snippet, curPosition);
 	// });
 
-	let addFile = vscode.commands.registerTextEditorCommand('moyu.add a file', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.new file', async () => {
 		const rootPathURI = vscode.window.activeTextEditor?.document.uri
 		const fileName = await vscode.window.showInputBox({ placeHolder: '请输入文件名称' })
 
@@ -42,25 +42,32 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	})
 
-	let addComponent = vscode.commands.registerTextEditorCommand('moyu.new component', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.new component', async () => {
 		const rootPathURI = vscode.window.activeTextEditor?.document.uri
 		const componentName = await vscode.window.showInputBox({ placeHolder: '请输入新组件名称' })
 		if (!rootPathURI) return;
 
-		await createComponent(rootPathURI, componentName, 'currentPath')
+		await createComponent(rootPathURI, componentName, 'currentPageComponent')
 	})
 
-	let addComponentInGlobal = vscode.commands.registerTextEditorCommand('moyu.new component in global', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.new component in global', async () => {
 		const rootPathURI = vscode.window.activeTextEditor?.document.uri
 		const componentName = await vscode.window.showInputBox({ placeHolder: '请输入新组件名称' })
 		if (!rootPathURI) return;
 
-		await createComponent(rootPathURI, componentName, 'global')
+		await createComponent(rootPathURI, componentName, 'globalComponent')
 	})
 
+	const newPage = vscode.commands.registerTextEditorCommand('moyu.new page', async () => {
+		const rootPathURI = vscode.window.activeTextEditor?.document.uri
+		const componentName = await vscode.window.showInputBox({ placeHolder: '请输入新页面名称' })
+		if (!rootPathURI) return;
+
+		await createComponent(rootPathURI, componentName, 'page')
+	})
 
 	// context.subscriptions.push(addForm);
-	context.subscriptions.push(addFile);
+	context.subscriptions.push(newPage);
 }
 
 // this method is called when your extension is deactivated

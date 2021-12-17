@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { lastPathTo } from './utils';
 
 const getComponentTemplate = (name: string) =>
-`import React from 'react';
+  `import React from 'react';
     
 const ${name}: React.FC = () => {
   return (
@@ -15,21 +15,23 @@ export default ${name};`
 type CreateComponent = (
   currentUri: vscode.Uri,
   componentName?: string,
-  type?: 'global' | 'currentPath'
+  type?: 'globalComponent' | 'currentPageComponent' | 'page'
 ) => Promise<void>
 
 const createComponent: CreateComponent = async (
   currentUri,
   componentName = 'MyComponent',
-  type = 'currentPath'
+  type,
 ) => {
-
+  const rootPath = vscode.workspace.workspaceFolders?.[0].uri
   let newComponentsFolderPath
-  if (type === 'currentPath') {
+
+  if (type === 'currentPageComponent') {
     newComponentsFolderPath = lastPathTo(currentUri, 'components');
-  } else {
-    const rootPath = vscode.workspace.workspaceFolders?.[0].uri
+  } else if (type === 'globalComponent') {
     newComponentsFolderPath = vscode.Uri.joinPath(rootPath as vscode.Uri, '/src/components');
+  } else {
+    newComponentsFolderPath = vscode.Uri.joinPath(rootPath as vscode.Uri, '/src/pages');
   }
 
   await vscode.workspace.fs.createDirectory(newComponentsFolderPath);

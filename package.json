@@ -10,34 +10,29 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:moyu.add a antd form",
-    "onCommand:moyu.add a file",
+    "onCommand:moyu.new file",
     "onCommand:moyu.new component",
-    "onCommand:moyu.form with",
-    "onCommand:moyu.new component in global"
+    "onCommand:moyu.new component in global",
+    "onCommand:moyu.new page"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "moyu.add a antd form",
-        "title": "add form"
-      },
-      {
-        "command": "moyu.form with",
-        "title": "form with"
-      },
-      {
-        "command": "moyu.add a file",
-        "title": "add a file"
+        "command": "moyu.new file",
+        "title": "new file"
       },
       {
         "command": "moyu.new component",
-        "title": "add a component"
+        "title": "new component"
       },
       {
         "command": "moyu.new component in global",
-        "title": "add a component in global"
+        "title": "new component in global"
+      },
+      {
+        "command": "moyu.new page",
+        "title": "new page"
       }
     ]
   },
