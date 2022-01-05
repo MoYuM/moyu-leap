@@ -13,10 +13,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:moyu.new file",
-    "onCommand:moyu.new component",
-    "onCommand:moyu.new component in global",
-    "onCommand:moyu.new page"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -36,6 +33,12 @@
       {
         "command": "moyu.new page",
         "title": "new page"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "moyu.select word",
+        "key": "cmd+,"
       }
     ]
   },
