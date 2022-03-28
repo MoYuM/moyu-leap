@@ -33,6 +33,10 @@
       {
         "command": "moyu.new page",
         "title": "new page"
+      },
+      {
+        "command": "moyu.analyze text",
+        "title": "analyze text"
       }
     ],
     "keybindings": [

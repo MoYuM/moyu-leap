@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { getRootUri, getUserInput } from './utils';
 
 const getCursorPosition = () => {
   return vscode.window.activeTextEditor?.selection.active;
