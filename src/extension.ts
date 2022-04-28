@@ -3,7 +3,6 @@ import createFile from './createFile';
 import createComponent from './createComponent';
 import selectWord from './selectWord';
 import { getRootUri, getUserInput } from './utils';
-import analyze from './analyze';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -61,18 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * select word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select word', async () => {
-		selectWord();
-	})
-
-	/**
-	 * analyze text
-	 */
-	vscode.commands.registerTextEditorCommand('moyu.analyze text', async () => {
-		const text = await getUserInput('请输入文本');
-		if (!text) return;
-		const result = analyze(text as any);
-	})
+	vscode.commands.registerTextEditorCommand('moyu.select word', selectWord);
 
 }
 
