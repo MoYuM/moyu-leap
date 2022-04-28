@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import createFile from './createFile';
 import createComponent from './createComponent';
-import selectWord from './selectWord';
+import Finder from './finderInline';
 import { getRootUri, getUserInput } from './utils';
 
 
@@ -58,9 +58,29 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	/**
-	 * select word
+	 * select nearest word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select word', selectWord);
+	vscode.commands.registerTextEditorCommand('moyu.select neareast word', async () => {
+		const finder = new Finder();
+		finder.selectNearestWord();
+	});
+
+
+	/**
+	 * select next word
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.select next word', async () => {
+		const finder = new Finder();
+		finder.selectNextWord();
+	});
+
+	/**
+	 * select pervious word
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.select pervious word', async () => {
+		const finder = new Finder();
+		finder.selectPrevWord();
+	});
 
 }
 

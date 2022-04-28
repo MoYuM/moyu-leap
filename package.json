@@ -41,7 +41,15 @@
     ],
     "keybindings": [
       {
-        "command": "moyu.select word",
+        "command": "moyu.select neareast word",
+        "key": "cmd+/"
+      },
+      {
+        "command": "moyu.select next word",
+        "key": "cmd+."
+      },
+      {
+        "command": "moyu.select pervious word",
         "key": "cmd+,"
       }
     ]
