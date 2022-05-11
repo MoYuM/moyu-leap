@@ -17,8 +17,9 @@
 
 ### 2. 选中单词
 
-| 命令                      | 功能                                   | 默认按键  |
-| ------------------------- | -------------------------------------- | --------- |
-| moyu.select neareast word | 在当前行中，选中距离光标最近的一个单词 | `cmd`+`/` |
-| moyu.select next word     | 在当前行中，选中下一个单词             | `cmd`+`.` |
-| moyu.select pervious word | 在当前行中，选中上一个单词             | `cmd`+`,` |
+| 命令                      | 功能                                   | 默认按键              |
+| ------------------------- | -------------------------------------- | --------------------- |
+| moyu.select neareast word | 在当前行中，选中距离光标最近的一个单词 | `shift` + `cmd` + `/` |
+| moyu.select next word     | 在当前行中，选中下一个单词             | `shift` + `cmd` + `.` |
+| moyu.select pervious word | 在当前行中，选中上一个单词             | `shift` + `cmd` + `,` |
+| moyu.select next brackets | 在当前行中，移动光标到下一个`(`后面    | `shift` + `cmd` + `9` |

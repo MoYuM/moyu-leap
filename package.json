@@ -33,24 +33,24 @@
       {
         "command": "moyu.new page",
         "title": "new page"
-      },
-      {
-        "command": "moyu.analyze text",
-        "title": "analyze text"
       }
     ],
     "keybindings": [
       {
         "command": "moyu.select neareast word",
-        "key": "cmd+/"
+        "key": "shift+cmd+/"
       },
       {
         "command": "moyu.select next word",
-        "key": "cmd+."
+        "key": "shift+cmd+."
       },
       {
         "command": "moyu.select pervious word",
-        "key": "cmd+,"
+        "key": "shift+cmd+,"
+      },
+      {
+        "command": "moyu.move to next bracket",
+        "key": "shift+cmd+9"
       }
     ]
   },

@@ -9,19 +9,10 @@ type Word = {
 export default class Finder {
   private cursorPosition?: vscode.Position;
   private textDoc?: vscode.TextDocument;
-  private editor?: vscode.TextEditor;
 
   constructor() {
     this.cursorPosition = vscode.window.activeTextEditor?.selection.active;
     this.textDoc = vscode.window.activeTextEditor?.document;
-    this.editor = vscode.window.activeTextEditor;
-  }
-
-  public selectRange(range?: vscode.Range) {
-    if (range && this.editor) {
-      const selection = new vscode.Selection(range.start, range.end);
-      this.editor.selection = selection;
-    }
   }
 
   private parseLine(line?: vscode.TextLine) {
@@ -93,13 +84,16 @@ export default class Finder {
     }
   }
 
+  private getBracketList() {
+    if (!this.cursorPosition) return;
 
-  private select(range?: vscode.Range) {
-    if (range && this.editor) {
-      const selection = new vscode.Selection(range.start, range.end);
-      this.editor.selection = selection
-    }
+    const reg = /\(/g
+    const lineText = this.textDoc?.lineAt(this.cursorPosition.line).text || '';
+    const bracketList = [...lineText?.matchAll(reg)];
+
+    return bracketList;
   }
+
 
   private getRange(word?: Word) {
     if (!this.cursorPosition) return
@@ -112,32 +106,41 @@ export default class Finder {
   }
 
   /**
-   * 选择最近的一个单词
+   * 找到最近的一个单词
    */
-  public selectNearestWord() {
+  public findNearestWord() {
     const wordListSort = this.getWordList('nearest');
     const mostCloseWord = wordListSort?.[0];
-    const wordRange = this.getRange(mostCloseWord);
-    this.select(wordRange);
+    return this.getRange(mostCloseWord);
   }
 
   /**
-   * 选择下一个单词
+   * 找到下一个单词
    */
-  public selectNextWord() {
+  public findNextWord() {
     const wordList = this.getWordList();
     const nextWord = wordList?.find(w => w.start >= (this.cursorPosition?.character || 0));
-    const wordRange = this.getRange(nextWord);
-    this.select(wordRange);
+    return this.getRange(nextWord);
   }
 
   /**
-   * 选择上一个单词
+   * 找到上一个单词
    */
-  public selectPrevWord() {
+  public findPrevWord() {
     const wordList = this.getWordList();
     const prevWord = wordList?.reverse()?.find(w => w.end < (this.cursorPosition?.character || 0));
-    const wordRange = this.getRange(prevWord);
-    this.select(wordRange);
+    return this.getRange(prevWord);
+  }
+
+  /**
+   * 找到下一个括号
+   */
+  public findNextBracket() {
+    if (!this.cursorPosition) return;
+    const bracketList = this.getBracketList();
+    const bracket = bracketList?.find(i => (i.index || 0) > (this.cursorPosition?.character || 0));
+    if (bracket) {
+      return new vscode.Position(this.cursorPosition.line, (bracket?.index || 0) + 1)
+    }
   }
 }

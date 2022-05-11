@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import createFile from './createFile';
 import createComponent from './createComponent';
 import Finder from './finderInline';
-import { getRootUri, getUserInput } from './utils';
+import { getRootUri, getUserInput, moveTo, select } from './utils';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -60,26 +60,40 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * select nearest word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select neareast word', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.select neareast word', () => {
 		const finder = new Finder();
-		finder.selectNearestWord();
+		const range = finder.findNearestWord();
+		select(range);
 	});
 
 
 	/**
 	 * select next word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select next word', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.select next word', () => {
 		const finder = new Finder();
-		finder.selectNextWord();
+		const range = finder.findNextWord();
+		select(range);
 	});
+
 
 	/**
 	 * select pervious word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select pervious word', async () => {
+	vscode.commands.registerTextEditorCommand('moyu.select pervious word', () => {
 		const finder = new Finder();
-		finder.selectPrevWord();
+		const range = finder.findPrevWord();
+		select(range);
+	});
+
+
+	/**
+	 * moyu.move to next bracket
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.move to next bracket', () => {
+		const finder = new Finder();
+		const position = finder.findNextBracket();
+		moveTo(position);
 	});
 
 }

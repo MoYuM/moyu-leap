@@ -23,3 +23,27 @@ export const getUserInput = async (placeHolder: string) => {
   const string = await vscode.window.showInputBox({ placeHolder })
   return string;
 }
+
+/**
+ * 选择一个 range
+ * @param range Range
+ */
+export const select = (range?: vscode.Range) => {
+  const editor = vscode.window.activeTextEditor;
+  if (range && editor) {
+    const selection = new vscode.Selection(range.start, range.end);
+    editor.selection = selection
+  }
+}
+
+/**
+ * 移动光标到某个 position
+ * @param pos Position
+ */
+export const moveTo = (pos?: vscode.Position) => {
+  const editor = vscode.window.activeTextEditor;
+  if (pos && editor) {
+    const selection = new vscode.Selection(pos, pos);
+    editor.selection = selection
+  }
+}
