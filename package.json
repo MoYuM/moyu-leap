@@ -51,6 +51,10 @@
       {
         "command": "moyu.move to next bracket",
         "key": "shift+cmd+9"
+      },
+      {
+        "command": "moyu.search mode",
+        "key": "shift+cmd+0"
       }
     ]
   },

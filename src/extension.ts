@@ -3,6 +3,7 @@ import createFile from './createFile';
 import createComponent from './createComponent';
 import Finder from './finderInline';
 import { getRootUri, getUserInput, moveTo, select } from './utils';
+import Search from './search';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -96,6 +97,27 @@ export function activate(context: vscode.ExtensionContext) {
 		moveTo(position);
 	});
 
+
+	/**
+	 * moyu.search mode
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.search mode', () => {
+		const search = new Search();
+		search.showStatusBar();
+		const disposable = overrideDefaultTypeEvent(({ text }) => {
+			search.updateStatusBar(text);
+			if (text === '\n') {
+				search.doSearch();
+				disposable.dispose();
+			}
+		});
+	});
+}
+
+function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
+	return vscode.commands.registerCommand('type', (e) => {
+		return callback(e)
+	});
 }
 
 // this method is called when your extension is deactivated
