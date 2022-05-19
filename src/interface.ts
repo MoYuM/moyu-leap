@@ -1,4 +1,4 @@
-
+import * as vscode from 'vscode';
 export interface CustomTemplate {
   /** 代码片段名称 */
   name: string,
@@ -8,6 +8,14 @@ export interface CustomTemplate {
   autoImport?: AutoImport,
   /** 子元素 */
   children?: CustomTemplate[],
+}
+
+export type Word = {
+  word: string,
+  start: number,
+  end: number,
+  line: number,
+  range: vscode.Range,
 }
 
 export type AutoImport = Array<{ key: string, from: string }>

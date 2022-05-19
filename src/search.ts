@@ -1,4 +1,7 @@
 import * as vscode from 'vscode';
+import Finder from './finderInline';
+import { Word } from './interface';
+import * as CONFIG from './constant';
 
 class Search {
   private cursorPosition?: vscode.Position;
@@ -24,14 +27,14 @@ class Search {
   private createDecoration(text?: string) {
     const defaultCss = {
       position: 'absolute',
-      top: '-24px',
+      top: 0,
       height: '20px',
       display: `inline-block`,
       padding: '0 4px',
+      color: CONFIG.COLOR,
+      ['background-color']: CONFIG.BACKGROUNDCOLOR,
       ['border-radius']: '2px',
       ['line-height']: '20px',
-      ['background-color']: 'red',
-      ['min-width']: '40px',
       ['z-index']: 1,
       ['pointer-events']: 'none',
     };
@@ -46,17 +49,32 @@ class Search {
     })
   }
 
+  private generateTargets(count: number) {
+    const needKeys = Math.sqrt(count)
+  }
+
+  /**
+   * 找出页面中所有的单词及其位置
+   */
+  public findAllWordsInDoc() {
+    const finder = new Finder();
+    let docWordList: Word[] = [];
+    for (let i = 0; i < (this.textDoc?.lineCount || 0); i++) {
+      const wordList = finder.getWordListAtLine(i);
+      docWordList = docWordList.concat(wordList);
+    }
+
+    return docWordList;
+  }
+
+
   public showStatusBar() {
     if (!this.cursorPosition) return;
+    const allWords = this.findAllWordsInDoc();
 
     vscode.window.activeTextEditor?.setDecorations(
-      this.createDecoration(),
-      [
-        new vscode.Range(
-          this.cursorPosition,
-          this.cursorPosition,
-        )
-      ]
+      this.createDecoration('a'),
+      allWords.map(i => i.range),
     )
   }
 

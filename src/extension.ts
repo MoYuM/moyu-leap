@@ -104,13 +104,13 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerTextEditorCommand('moyu.search mode', () => {
 		const search = new Search();
 		search.showStatusBar();
-		const disposable = overrideDefaultTypeEvent(({ text }) => {
-			search.updateStatusBar(text);
-			if (text === '\n') {
-				search.doSearch();
-				disposable.dispose();
-			}
-		});
+		// const disposable = overrideDefaultTypeEvent(({ text }) => {
+		// 	search.updateStatusBar(text);
+		// 	if (text === '\n') {
+		// 		search.doSearch();
+		// 		disposable.dispose();
+		// 	}
+		// });
 	});
 }
 

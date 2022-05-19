@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
+import { Word } from './interface';
 
-type Word = {
-  word: string,
-  start: number,
-  end: number,
-}
 
 export default class Finder {
   private cursorPosition?: vscode.Position;
@@ -37,6 +33,11 @@ export default class Finder {
           word: str.slice(0, cha.index),
           start: 0,
           end: cha.index as number,
+          line: line.lineNumber,
+          range: new vscode.Range(
+            new vscode.Position(line.lineNumber, 0),
+            new vscode.Position(line.lineNumber, cha.index as number)
+          )
         })
         lastChaIndex = cha.index as number;
         return;
@@ -48,6 +49,11 @@ export default class Finder {
           word: str.slice(lastChaIndex + 1, cha.index),
           start: lastChaIndex + 1,
           end: cha.index as number,
+          line: line.lineNumber,
+          range: new vscode.Range(
+            new vscode.Position(line.lineNumber, lastChaIndex + 1),
+            new vscode.Position(line.lineNumber, cha.index as number)
+          )
         })
         lastChaIndex = cha.index as number;
         return;
@@ -59,10 +65,20 @@ export default class Finder {
     return wordList;
   }
 
-  private getWordList(sortBy: 'nearest' | 'normal' = 'normal') {
-    if (!this.cursorPosition) return;
+  /**
+   * 解析出某一行中的所有单词
+   * @param {number} line 解析第几行的数据
+   * @param {string} sortBy 如何排序
+   * @returns 这一行中的所有单词
+   */
+  public getWordListAtLine(
+    line?: number,
+    sortBy: 'nearest' | 'normal' = 'normal'
+  ): Word[] {
+    if (!this.cursorPosition) return [];
+    if (!line) return [];
 
-    const wordList = this.parseLine(this.textDoc?.lineAt(this.cursorPosition.line));
+    const wordList = this.parseLine(this.textDoc?.lineAt(line));
     const cur = this.cursorPosition.character || 0; // 这里可以给 0 作为默认值么？
 
     function cursorIsInWord(word: Word) {
@@ -95,41 +111,31 @@ export default class Finder {
   }
 
 
-  private getRange(word?: Word) {
-    if (!this.cursorPosition) return
-    if (word) {
-      return new vscode.Range(
-        new vscode.Position(this.cursorPosition.line, word.start),
-        new vscode.Position(this.cursorPosition.line, word.end)
-      );
-    }
-  }
-
   /**
    * 找到最近的一个单词
    */
   public findNearestWord() {
-    const wordListSort = this.getWordList('nearest');
+    const wordListSort = this.getWordListAtLine(this.cursorPosition?.line, 'nearest');
     const mostCloseWord = wordListSort?.[0];
-    return this.getRange(mostCloseWord);
+    return mostCloseWord.range;
   }
 
   /**
    * 找到下一个单词
    */
   public findNextWord() {
-    const wordList = this.getWordList();
+    const wordList = this.getWordListAtLine(this.cursorPosition?.line);
     const nextWord = wordList?.find(w => w.start >= (this.cursorPosition?.character || 0));
-    return this.getRange(nextWord);
+    return nextWord?.range;
   }
 
   /**
    * 找到上一个单词
    */
   public findPrevWord() {
-    const wordList = this.getWordList();
+    const wordList = this.getWordListAtLine(this.cursorPosition?.line);
     const prevWord = wordList?.reverse()?.find(w => w.end < (this.cursorPosition?.character || 0));
-    return this.getRange(prevWord);
+    return prevWord?.range;
   }
 
   /**
