@@ -1,14 +1,12 @@
 import * as vscode from 'vscode';
 import Finder from './finderInline';
-import { Word } from './interface';
+import { Target, Word } from './interface';
 import * as CONFIG from './constant';
 
 class Search {
-  private cursorPosition?: vscode.Position;
   private textDoc?: vscode.TextDocument;
 
   constructor() {
-    this.cursorPosition = vscode.window.activeTextEditor?.selection.active;
     this.textDoc = vscode.window.activeTextEditor?.document;
   }
 
@@ -50,7 +48,24 @@ class Search {
   }
 
   private generateTargets(count: number) {
-    const needKeys = Math.sqrt(count)
+    const mixin = (listOne: string[], listTwo: string[]) => {
+      const result: string[] = [];
+      listOne.forEach(i => {
+        listTwo.forEach(j => {
+          result.push(i + j);
+          if (i !== j) {
+            result.push(j + i);
+          }
+        })
+      })
+      return result;
+    }
+
+    let list: string[] = CONFIG.KEYS;
+    while (list.length < count) {
+      list = list.concat(mixin(CONFIG.KEYS, list));
+    }
+    return Array.from(new Set(list));
   }
 
   /**
@@ -67,26 +82,39 @@ class Search {
     return docWordList;
   }
 
+  public wordToTarget(wordList: Word[]): Target[] {
+    const keysList = this.generateTargets(wordList.length);
+    return wordList.map((i, index) => {
+      const decoration = this.createDecoration(keysList[index])
+      return {
+        ...i,
+        decoration,
+        dispose: decoration.dispose,
+        key: keysList[index],
+      }
+    })
+  }
 
-  public showStatusBar() {
-    if (!this.cursorPosition) return;
+  public findAllTargets() {
     const allWords = this.findAllWordsInDoc();
-
-    vscode.window.activeTextEditor?.setDecorations(
-      this.createDecoration('a'),
-      allWords.map(i => i.range),
-    )
-  }
-
-  public updateStatusBar(text: string) {
-    this.createDecoration(text);
+    return this.wordToTarget(allWords);
   }
 
 
-  public doSearch() {
-
+  public showTargets(targets: Target[]) {
+    targets.forEach(target => {
+      vscode.window.activeTextEditor?.setDecorations(
+        target.decoration,
+        [target.range],
+      )
+    })
   }
 
+  public disposeTargets(targets: Target[]) {
+    targets?.forEach(target => {
+      target.dispose();
+    })
+  }
 
 }
 

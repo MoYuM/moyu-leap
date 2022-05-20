@@ -18,4 +18,10 @@ export type Word = {
   range: vscode.Range,
 }
 
+export type Target = Word & {
+  decoration: vscode.TextEditorDecorationType,
+  dispose: () => void,
+  key: string,
+}
+
 export type AutoImport = Array<{ key: string, from: string }>

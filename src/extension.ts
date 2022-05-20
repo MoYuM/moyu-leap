@@ -4,6 +4,7 @@ import createComponent from './createComponent';
 import Finder from './finderInline';
 import { getRootUri, getUserInput, moveTo, select } from './utils';
 import Search from './search';
+import * as CONFIG from './constant';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -103,14 +104,40 @@ export function activate(context: vscode.ExtensionContext) {
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.search mode', () => {
 		const search = new Search();
-		search.showStatusBar();
-		// const disposable = overrideDefaultTypeEvent(({ text }) => {
-		// 	search.updateStatusBar(text);
-		// 	if (text === '\n') {
-		// 		search.doSearch();
-		// 		disposable.dispose();
-		// 	}
-		// });
+
+		let targets = search.findAllTargets();
+		let disposeCount = 0;
+		let total = targets.length;
+		let typeList: string[] = [];
+		search.showTargets(targets);
+
+		const command = overrideDefaultTypeEvent(({ text }) => {
+			if (text === CONFIG.EXITSEARCHMODE) {
+				search.disposeTargets(targets);
+				command.dispose();
+				return;
+			}
+
+			typeList.push(text);
+
+			const needDisposeTargets = targets?.filter(i => !typeList.every((j, index) => i.key[index] === j));
+			targets = targets.filter(i => typeList.every((j, index) => i.key[index] === j));
+
+			disposeCount += needDisposeTargets.length;
+			search.disposeTargets(needDisposeTargets);
+
+			if (disposeCount === total) {
+				command.dispose();
+				return;
+			}
+
+			if (total - disposeCount === 1) {
+				moveTo(targets[0].range.start);
+				targets[0].dispose();
+				command.dispose();
+				return;
+			}
+		});
 	});
 }
 
