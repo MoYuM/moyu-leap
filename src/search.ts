@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import Finder from './finderInline';
-import { Target, Word } from './interface';
+import { Target, Word, KeyTree } from './interface';
 import * as CONFIG from './constant';
 
 class Search {
@@ -48,22 +48,47 @@ class Search {
   }
 
   private generateTargets(count: number) {
-    const mixin = (listOne: string[], listTwo: string[]) => {
+    let canNotShow = [];
+
+    function mixin(list: string[]) {
       const result: string[] = [];
-      listOne.forEach(i => {
-        listTwo.forEach(j => {
+      list.forEach(i => {
+        list.forEach(j => {
           result.push(i + j);
-          if (i !== j) {
-            result.push(j + i);
-          }
+          result.push(j + i);
         })
       })
-      return result;
+      return Array.from(new Set(result));
+    }
+
+
+    function nextLevel(list: string[]) {
+      let _list = [...list];
+      let entrys: string[] = [];
+      const nextLevel: string[] = [];
+      const level = _list[_list.length - 1].length;
+      const canNotShow = _list.filter(i => i.length === level);
+      console.log('%ccanNotShow', 'background-color: darkorange', canNotShow);
+      if (canNotShow.length === _list.length) {
+        entrys = _list.splice(0, 3);
+      } else {
+        const thisLevelKeys = canNotShow.map(i => i[level - 1]);
+
+        entrys = mixin(_list).filter(i => !canNotShow.includes(i));
+      }
+
+      entrys.forEach(i => {
+        CONFIG.KEYS.forEach(j => {
+          nextLevel.push(i + j);
+        })
+      })
+
+      return _list.concat(nextLevel);
     }
 
     let list: string[] = CONFIG.KEYS;
     while (list.length < count) {
-      list = list.concat(mixin(CONFIG.KEYS, list));
+      list = nextLevel(list);
     }
     return Array.from(new Set(list));
   }

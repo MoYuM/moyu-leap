@@ -24,4 +24,11 @@ export type Target = Word & {
   key: string,
 }
 
+export type KeyTree = {
+  [key: string]: {
+    isEntry: boolean,
+    children?: KeyTree,
+  }
+}
+
 export type AutoImport = Array<{ key: string, from: string }>
