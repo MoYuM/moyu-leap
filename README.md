@@ -1,14 +1,12 @@
 # Moyu-Template
 
-对工作中常用功能，使用 vscode 插件的方式快速实现
+以 vscode 插件的形式提供更多快捷指令，尽量减少使用鼠标的次数。
 
-## 功能
+## 使用方法
 
-moyu-template 提供了以下的拓展功能
+moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Commands 可以使用 `shift+cmd+p` 唤起 vscode 控制谈，输入对应命令就可以了。对于 Keybindings 建议在键盘快捷方式中搜索 `moyu` 就能找到所有命令了，然后根据自己喜好更改即可。
 
-### Commands
-
-`shift+cmd+P` 唤起 vs code 控制台，输入对应命令
+## Commands
 
 | 命令                    | 功能                                                      |
 | ----------------------- | --------------------------------------------------------- |
@@ -17,7 +15,7 @@ moyu-template 提供了以下的拓展功能
 | new page                | 新建`@/pages/${pagename}/index.tsx`                       |
 | new file                | 新建一个文件在当前文件夹                                  |
 
-### Keybindings
+## Keybindings
 
 | 命令                      | 功能                                   | 默认按键              |
 | ------------------------- | -------------------------------------- | --------------------- |
