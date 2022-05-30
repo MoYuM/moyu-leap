@@ -76,7 +76,7 @@ export default class Finder {
     sortBy: 'nearest' | 'normal' = 'normal'
   ): Word[] {
     if (!this.cursorPosition) return [];
-    if (!line) return [];
+    if (typeof line !== 'number') return [];
 
     const wordList = this.parseLine(this.textDoc?.lineAt(line));
     const cur = this.cursorPosition.character || 0; // 这里可以给 0 作为默认值么？

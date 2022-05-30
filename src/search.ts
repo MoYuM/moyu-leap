@@ -113,11 +113,14 @@ class Search {
     const cursor = vscode.window.activeTextEditor?.selection.active.line || 0;
     const finder = new Finder();
     let docWordList: Word[] = [];
+
+    // 行数要在本文档的行数之内
     const line = [
-      cursor - CONFIG.PARSE_LINE_COUNT,
-      cursor + CONFIG.PARSE_LINE_COUNT
-    ]
-    for (let i = (line[0] >= 0 ? line[0] : 0); i < line[1]; i++) {
+      Math.max(cursor - CONFIG.PARSE_LINE_COUNT, 0),
+      Math.min(cursor + CONFIG.PARSE_LINE_COUNT, this.textDoc?.lineCount!),
+    ];
+
+    for (let i = line[0]; i < line[1]; i++) {
       const wordList = finder.getWordListAtLine(i);
       docWordList = docWordList.concat(wordList);
     }
