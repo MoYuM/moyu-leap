@@ -1,6 +1,6 @@
 {
   "name": "moyu",
-  "displayName": "moyu-template",
+  "displayName": "moyu-mode",
   "publisher": "moyum",
   "repository": "https://github.com/MoYuM/moyu-template",
   "description": "包含了个人常用功能的vscode插件",
