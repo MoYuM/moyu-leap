@@ -30,3 +30,8 @@ moyu-template 提供了以下的拓展功能
 ### Search Mode
 
 灵感来自 [vim-easymotion](https://github.com/easymotion/vim-easymotion)，可快速定位光标到任意位置
+
+### TODO
+
+- [ ] log
+- [ ] 快速滚动
