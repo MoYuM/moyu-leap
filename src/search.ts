@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import Finder from './finderInline';
-import { Target, Word, KeyTree } from './interface';
 import * as CONFIG from './constant';
+import Finder from './finderInline';
+import { Target, Word } from './interface';
 
 class Search {
   private textDoc?: vscode.TextDocument;
@@ -48,47 +48,60 @@ class Search {
   }
 
   private generateTargets(count: number) {
-    let canNotShow = [];
 
-    function mixin(list: string[]) {
-      const result: string[] = [];
-      list.forEach(i => {
-        list.forEach(j => {
-          result.push(i + j);
-          result.push(j + i);
+    function mixin(keys: string[], entrys: string[]) {
+      const reuslt: string[] = [];
+      keys.forEach(i => {
+        entrys.forEach(j => {
+          reuslt.push(j + i);
         })
       })
-      return Array.from(new Set(result));
+      return reuslt;
     }
 
-
-    function nextLevel(list: string[]) {
-      let _list = [...list];
-      let entrys: string[] = [];
-      const nextLevel: string[] = [];
-      const level = _list[_list.length - 1].length;
-      const canNotShow = _list.filter(i => i.length === level);
-      console.log('%ccanNotShow', 'background-color: darkorange', canNotShow);
-      if (canNotShow.length === _list.length) {
-        entrys = _list.splice(0, 3);
+    /**
+     * level1    level2    level3   
+     *  _|_   _____|_____   _|_
+     * |   | |           | |   |
+     * a b c d d d e e e d d e e ==> entry: d e
+     *       a b c a b c c c c c ==> entry: dc ec
+     *           ^     ^ a b a b 
+     *           |_____|
+     *              |
+     *          need delete
+     * 
+     * 1. we call key's length *level*
+     * 2. the letters that except last one of a key called *entry*
+     * 3. entrys of each level must not exist in its pervious level's keys
+     */
+    function addNextLevel(list: string[]) {
+      const keys = [...list];
+      const currentLevel = keys[keys.length - 1].length;
+      if (currentLevel === 1) {
+        const entrys = keys.splice(keys.length - 1 - CONFIG.PICKENTRYSCOUNT, CONFIG.PICKENTRYSCOUNT);
+        const nextLevel = mixin(keys, entrys);
+        return keys.concat(nextLevel);
       } else {
-        const thisLevelKeys = canNotShow.map(i => i[level - 1]);
-
-        entrys = mixin(_list).filter(i => !canNotShow.includes(i));
-      }
-
-      entrys.forEach(i => {
-        CONFIG.KEYS.forEach(j => {
-          nextLevel.push(i + j);
+        const currentLevelKeys = keys.filter(i => i.length === currentLevel);
+        const lastEntrys = Array.from(new Set(currentLevelKeys.map(i => i.slice(0, i.length - 1))));
+        const lastKeys = Array.from(new Set(currentLevelKeys.map(i => i[i.length - 1])));
+        const currentEntrys = lastKeys.splice(lastKeys.length - 1 - CONFIG.PICKENTRYSCOUNT, CONFIG.PICKENTRYSCOUNT);
+        const entrys = mixin(currentEntrys, lastEntrys)
+        const nextLevel = mixin(lastKeys, entrys);
+        const newKeys = keys.filter(i => {
+          if (i.length === currentLevel) {
+            return !currentEntrys.includes(i[i.length - 1])
+          } else {
+            return true;
+          }
         })
-      })
-
-      return _list.concat(nextLevel);
+        return newKeys.concat(nextLevel);
+      }
     }
 
     let list: string[] = CONFIG.KEYS;
     while (list.length < count) {
-      list = nextLevel(list);
+      list = addNextLevel(list);
     }
     return Array.from(new Set(list));
   }
@@ -97,9 +110,17 @@ class Search {
    * 找出页面中所有的单词及其位置
    */
   public findAllWordsInDoc() {
+    const cursor = vscode.window.activeTextEditor?.selection.active.line || 0;
     const finder = new Finder();
     let docWordList: Word[] = [];
-    for (let i = 0; i < (this.textDoc?.lineCount || 0); i++) {
+
+    // 行数要在本文档的行数之内
+    const line = [
+      Math.max(cursor - CONFIG.PARSE_LINE_COUNT, 0),
+      Math.min(cursor + CONFIG.PARSE_LINE_COUNT, this.textDoc?.lineCount!),
+    ];
+
+    for (let i = line[0]; i < line[1]; i++) {
       const wordList = finder.getWordListAtLine(i);
       docWordList = docWordList.concat(wordList);
     }
