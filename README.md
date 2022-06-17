@@ -24,6 +24,8 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 | moyu.select pervious word | 在当前行中，选中上一个单词             | `shift` + `cmd` + `,` |
 | moyu.select next brackets | 在当前行中，移动光标到下一个`(`后面    | `shift` + `cmd` + `9` |
 | moyu.search mode          | 开启 [search mode](#search-mode)       | `shift` + `cmd` + `0` |
+| moyu.move up              | 向上移动光标5行                        | `alt` + `k`           |
+| moyu.move down            | 向下移动光标5行                        | `alt` + `j`           |
 
 ### Search Mode
 
@@ -33,4 +35,4 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 ### TODO
 
 - [ ] log
-- [ ] 快速滚动
+- [x] 快速移动光标
