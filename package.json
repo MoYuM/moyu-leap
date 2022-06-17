@@ -10,7 +10,9 @@
     "vscode": "^1.62.0"
   },
   "categories": [
-    "Other"
+    "Keymaps",
+    "Snippets",
+    "Tools"
   ],
   "activationEvents": [
     "*"
