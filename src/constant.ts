@@ -31,3 +31,8 @@ export const PICKENTRYSCOUNT = 7;
  * 选择光标上下多少行解析
  */
 export const PARSE_LINE_COUNT = 40;
+
+/**
+ * 上下快速移动光标时，移动的行数
+ */
+export const MOVE_LINES = 5;

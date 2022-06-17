@@ -146,7 +146,11 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerTextEditorCommand('moyu.move up', () => {
 		const current = vscode.window.activeTextEditor?.selection.active;
 		moveTo(
-			current?.with(current.line - 5 <= 0 ? 0 : current.line - 5),
+			current?.with(
+				current.line - CONFIG.MOVE_LINES <= 0
+					? 0
+					: current.line - CONFIG.MOVE_LINES
+			),
 			{
 				withScroll: true
 			}
@@ -158,7 +162,12 @@ export function activate(context: vscode.ExtensionContext) {
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.move down', () => {
 		const current = vscode.window.activeTextEditor?.selection.active;
-		const newPosition = current?.with(Math.min(current.line + 5, vscode.window.activeTextEditor?.document.lineCount as number))
+		const newPosition = current?.with(
+			Math.min(
+				current.line + CONFIG.MOVE_LINES,
+				vscode.window.activeTextEditor?.document.lineCount as number
+			)
+		)
 		moveTo(newPosition, { withScroll: true });
 	});
 }
