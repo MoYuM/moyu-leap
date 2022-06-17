@@ -139,6 +139,28 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	});
+
+	/**
+	 * moyu.move up 5 lines
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.move up', () => {
+		const current = vscode.window.activeTextEditor?.selection.active;
+		moveTo(
+			current?.with(current.line - 5 <= 0 ? 0 : current.line - 5),
+			{
+				withScroll: true
+			}
+		);
+	});
+
+	/**
+	 * moyu.move down 5 lines
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.move down', () => {
+		const current = vscode.window.activeTextEditor?.selection.active;
+		const newPosition = current?.with(Math.min(current.line + 5, vscode.window.activeTextEditor?.document.lineCount as number))
+		moveTo(newPosition, { withScroll: true });
+	});
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {

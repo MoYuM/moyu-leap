@@ -5,7 +5,7 @@
   "repository": "https://github.com/MoYuM/moyu-template",
   "description": "包含了个人常用功能的vscode插件",
   "icon": "images/icon.png",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "engines": {
     "vscode": "^1.62.0"
   },
@@ -55,6 +55,14 @@
       {
         "command": "moyu.search mode",
         "key": "shift+cmd+0"
+      },
+      {
+        "command": "moyu.move up",
+        "key": "alt+k"
+      },
+      {
+        "command": "moyu.move down",
+        "key": "alt+j"
       }
     ]
   },

@@ -40,10 +40,24 @@ export const select = (range?: vscode.Range) => {
  * 移动光标到某个 position
  * @param pos Position
  */
-export const moveTo = (pos?: vscode.Position) => {
+export const moveTo = (
+  pos?: vscode.Position,
+  config?: {
+    withScroll: boolean,
+  }) => {
   const editor = vscode.window.activeTextEditor;
+  const { withScroll } = config || {};
   if (pos && editor) {
     const selection = new vscode.Selection(pos, pos);
-    editor.selection = selection
+    editor.selection = selection;
+
+    // scroll to
+    if (withScroll) {
+      const newRanges = new vscode.Range(
+        pos,
+        pos
+      )
+      vscode.window.activeTextEditor?.revealRange(newRanges, 1)
+    }
   }
 }
