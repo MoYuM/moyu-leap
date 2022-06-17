@@ -29,3 +29,8 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 
 灵感来自 [vim-easymotion](https://github.com/easymotion/vim-easymotion)，可快速定位光标到任意位置
 ![search-mode-gif](./images/search-mode.gif)
+
+### TODO
+
+- [ ] log
+- [ ] 快速滚动
