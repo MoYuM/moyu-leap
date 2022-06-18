@@ -61,3 +61,7 @@ export const moveTo = (
     }
   }
 }
+
+export const getCurrent = () => {
+  return vscode.window.activeTextEditor?.selection.active;
+}

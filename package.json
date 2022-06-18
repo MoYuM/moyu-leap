@@ -65,6 +65,10 @@
       {
         "command": "moyu.move down",
         "key": "alt+j"
+      },
+      {
+        "command": "moyu.snipper mode",
+        "key": "alt+q"
       }
     ]
   },

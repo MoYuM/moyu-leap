@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 import createFile from './createFile';
 import createComponent from './createComponent';
 import Finder from './finderInline';
-import { getRootUri, getUserInput, moveTo, select } from './utils';
+import { getCurrent, getRootUri, getUserInput, moveTo, select } from './utils';
 import Search from './search';
 import * as CONFIG from './constant';
+import Decoration from './decoration';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -170,7 +171,43 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 		moveTo(newPosition, { withScroll: true });
 	});
+
+	/** 
+	 * snippet 模式
+	 */
+	vscode.commands.registerTextEditorCommand('moyu.snipper mode', () => {
+		const dh = new Decoration();
+		const current = getCurrent();
+		if (!current) return;
+
+		const range = new vscode.Range(current, current);
+		let decoration = dh.create({
+			text: '',
+			range,
+			style: {
+				top: '-20px',
+				['min-width']: '30px'
+			}
+		});
+
+		dh.draw(decoration);
+
+		const command = overrideDefaultTypeEvent(({ text }) => {
+			const newDecoration = dh.update(decoration, {
+				text: decoration.content + text
+			});
+			if (newDecoration) {
+				decoration = newDecoration;
+			}
+
+			if (text === '\n') {
+				decoration.dispose();
+				command.dispose();
+			}
+		})
+	})
 }
+
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
 	return vscode.commands.registerCommand('type', (e) => {
