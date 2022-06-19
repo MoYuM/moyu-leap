@@ -20,7 +20,7 @@ export default class Finder {
     let lastChaIndex = 0;
 
     [...str.matchAll(reg)].forEach((cha, index) => {
-
+      console.log('%ccha', 'background:yellow', cha)
       // 第一个就是 \W 的情况
       if (index === 0 && cha.index === 0) {
         lastChaIndex = cha.index;
@@ -30,7 +30,7 @@ export default class Finder {
       // 第一个就是单词的情况
       if (index === 0 && cha.index !== 0) {
         wordList.push({
-          word: str.slice(0, cha.index),
+          text: str.slice(0, cha.index),
           start: 0,
           end: cha.index as number,
           line: line.lineNumber,
@@ -46,7 +46,7 @@ export default class Finder {
       // 除了第一个以外的情况
       if ((lastChaIndex + 1) !== cha.index) {
         wordList.push({
-          word: str.slice(lastChaIndex + 1, cha.index),
+          text: str.slice(lastChaIndex + 1, cha.index),
           start: lastChaIndex + 1,
           end: cha.index as number,
           line: line.lineNumber,
@@ -117,7 +117,7 @@ export default class Finder {
   public findNearestWord() {
     const wordListSort = this.getWordListAtLine(this.cursorPosition?.line, 'nearest');
     const mostCloseWord = wordListSort?.[0];
-    return mostCloseWord.range;
+    return mostCloseWord;
   }
 
   /**

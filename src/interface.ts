@@ -11,7 +11,7 @@ export interface CustomTemplate {
 }
 
 export type Word = {
-  word: string,
+  text: string,
   start: number,
   end: number,
   line: number,
@@ -25,3 +25,15 @@ export type Target = Word & {
 }
 
 export type AutoImport = Array<{ key: string, from: string }>
+
+export type VariableType = Array<{
+  name: string,
+  transformer: (text: string) => string,
+}>
+
+export type TempleteType = Array<{
+  name: string,
+  command: string,
+  newLine: boolean,
+  body: string,
+}>

@@ -6,6 +6,7 @@ import { getCurrent, getRootUri, getUserInput, moveTo, select } from './utils';
 import Search from './search';
 import * as CONFIG from './constant';
 import Decoration from './decoration';
+import { createSnippet, edit } from './snippet';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -65,8 +66,8 @@ export function activate(context: vscode.ExtensionContext) {
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.select neareast word', () => {
 		const finder = new Finder();
-		const range = finder.findNearestWord();
-		select(range);
+		const word = finder.findNearestWord();
+		select(word.range);
 	});
 
 
@@ -176,13 +177,17 @@ export function activate(context: vscode.ExtensionContext) {
 	 * snippet 模式
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.snipper mode', () => {
+		vscode.commands.executeCommand('hideSuggestWidget')
 		const dh = new Decoration();
 		const current = getCurrent();
 		if (!current) return;
 
-		const range = new vscode.Range(current, current);
+		const range = vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current);
+		const word = vscode.window.activeTextEditor?.document.getText(range);
+		let input = ''
+
 		let decoration = dh.create({
-			text: '',
+			text: "",
 			range,
 			style: {
 				top: '-20px',
@@ -193,9 +198,12 @@ export function activate(context: vscode.ExtensionContext) {
 		dh.draw(decoration);
 
 		const command = overrideDefaultTypeEvent(({ text }) => {
+			input += text.trim();
+
 			const newDecoration = dh.update(decoration, {
 				text: decoration.content + text
 			});
+
 			if (newDecoration) {
 				decoration = newDecoration;
 			}
@@ -203,6 +211,17 @@ export function activate(context: vscode.ExtensionContext) {
 			if (text === '\n') {
 				decoration.dispose();
 				command.dispose();
+
+				const snippet = createSnippet(word, input);
+				if (!snippet) return;
+				const templete = CONFIG.TEMPLETE.find(i => i.command === input);
+
+				edit({
+					snippet,
+					newLine: templete?.newLine,
+					position: range?.end,
+					replaceRange: range,
+				})
 			}
 		})
 	})
