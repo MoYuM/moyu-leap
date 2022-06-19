@@ -67,7 +67,7 @@
         "key": "alt+j"
       },
       {
-        "command": "moyu.snipper mode",
+        "command": "moyu.snippet mode",
         "key": "alt+q"
       }
     ]

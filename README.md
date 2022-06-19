@@ -24,15 +24,22 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 | moyu.select pervious word | 在当前行中，选中上一个单词             | `shift` + `cmd` + `,` |
 | moyu.select next brackets | 在当前行中，移动光标到下一个`(`后面    | `shift` + `cmd` + `9` |
 | moyu.search mode          | 开启 [search mode](#search-mode)       | `shift` + `cmd` + `0` |
-| moyu.move up              | 向上移动光标5行                        | `alt` + `k`           |
-| moyu.move down            | 向下移动光标5行                        | `alt` + `j`           |
+| moyu.move up              | 向上移动光标 5 行                      | `alt` + `k`           |
+| moyu.move down            | 向下移动光标 5 行                      | `alt` + `j`           |
+| moyu.snippet mode         | 开启 [snippet](#snippet-mode)          | `alt` + `q`           |
 
 ### Search Mode
 
 灵感来自 [vim-easymotion](https://github.com/easymotion/vim-easymotion)，可快速定位光标到任意位置
 ![search-mode-gif](./images/search-mode.gif)
 
+### Snippet Mode
+
+将光标移动到你想生成代码片段的单词上，然后按 `alt+q`，开启 snippet mode。然后输入模板名称，比如 `log`，按回车确定，就能生成一个代码片段了。
+
 ### TODO
 
-- [ ] log
+- [x] log
 - [x] 快速移动光标
+- [ ] snippet mode 支持自动填充
+- [ ] 所有功能配置化

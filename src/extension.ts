@@ -176,7 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/** 
 	 * snippet 模式
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.snipper mode', () => {
+	vscode.commands.registerTextEditorCommand('moyu.snippet mode', () => {
 		vscode.commands.executeCommand('hideSuggestWidget')
 		const dh = new Decoration();
 		const current = getCurrent();
