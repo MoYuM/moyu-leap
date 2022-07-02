@@ -68,14 +68,20 @@ class Decoration {
     }
   }
 
-  public update(d: DecorationMore, options: { text: string }) {
-    if (!d.range) return;
+  public update(d: DecorationMore, options: { text: string } | string) {
     d.dispose();
-    const newD = this.create({
-      text: options.text,
+    const config: Record<string, any> = {
       range: d.range,
       style: d.style
-    });
+    }
+
+    if (typeof options === 'string') {
+      config.text = options;
+    } else {
+      Object.assign(config, options);
+    }
+
+    const newD = this.create(config);
     this.draw(newD);
     return newD;
   }

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { TEMPLETE, VARIABLE } from './constant';
+import { TempleteType } from './interface';
 import { moveTo } from './utils';
 
 export const edit = (config: {
@@ -38,18 +39,13 @@ export const edit = (config: {
 }
 
 export const createSnippet = (
-  text?: string,
-  command?: string,
+  text: string,
 ) => {
-  if (!text) return;
-  if (command) return templeteToSnippet(text, command);
   return new vscode.SnippetString(text);
 }
 
-export const templeteToSnippet = (text: string, command: string) => {
-  const templete = TEMPLETE.find(i => i.command === command);
+export const createSnippetByTemplete = (text: string, templete: TempleteType) => {
   let result = templete?.body || '';
-  if (!templete) return;
 
   VARIABLE.forEach(v => {
     const variable = `$\{${v.name}\}`

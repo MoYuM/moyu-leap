@@ -31,9 +31,9 @@ export type VariableType = Array<{
   transformer: (text: string) => string,
 }>
 
-export type TempleteType = Array<{
+export type TempleteType = {
   name: string,
   command: string,
   newLine: boolean,
   body: string,
-}>
+}

@@ -6,7 +6,7 @@ import { getCurrent, getRootUri, getUserInput, moveTo, select } from './utils';
 import Search from './search';
 import * as CONFIG from './constant';
 import Decoration from './decoration';
-import { createSnippet, edit } from './snippet';
+import { createSnippetByTemplete, edit } from './snippet';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -173,19 +173,23 @@ export function activate(context: vscode.ExtensionContext) {
 		moveTo(newPosition, { withScroll: true });
 	});
 
+
+
 	/** 
 	 * snippet 模式
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.snippet mode', () => {
 		vscode.commands.executeCommand('hideSuggestWidget')
+		vscode.commands.executeCommand('setContext', 'moyu.snippetActive', true);
 		const dh = new Decoration();
 		const current = getCurrent();
 		if (!current) return;
 
 		const range = vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current);
 		const word = vscode.window.activeTextEditor?.document.getText(range);
-		let input = ''
+		if (!word) return;
 
+		let input = ''
 		let decoration = dh.create({
 			text: "",
 			range,
@@ -194,36 +198,44 @@ export function activate(context: vscode.ExtensionContext) {
 				['min-width']: '30px'
 			}
 		});
-
 		dh.draw(decoration);
 
-		const command = overrideDefaultTypeEvent(({ text }) => {
+		const clear = () => {
+			decoration.dispose();
+			command.dispose();
+			escapeDisposer.dispose();
+			backspaceDisposer.dispose();
+			vscode.commands.executeCommand('setContext', 'moyu.snippetActive', false);
+		}
+
+		const backspace = () => {
+			input = input.slice(0, input.length - 1);
+			decoration = dh.update(decoration, input);
+		}
+
+		const inputHandler = ({ text }: { text: string }) => {
 			input += text.trim();
-
-			const newDecoration = dh.update(decoration, {
-				text: decoration.content + text
-			});
-
-			if (newDecoration) {
-				decoration = newDecoration;
-			}
+			decoration = dh.update(decoration, decoration.content + text);
 
 			if (text === '\n') {
-				decoration.dispose();
-				command.dispose();
-
-				const snippet = createSnippet(word, input);
-				if (!snippet) return;
 				const templete = CONFIG.TEMPLETE.find(i => i.command === input);
 
-				edit({
-					snippet,
-					newLine: templete?.newLine,
-					position: range?.end,
-					replaceRange: range,
-				})
+				if (templete) {
+					const snippet = createSnippetByTemplete(word, templete);
+					clear();
+					edit({
+						snippet,
+						newLine: templete?.newLine,
+						position: range?.end,
+						replaceRange: range,
+					})
+				}
 			}
-		})
+		}
+
+		const escapeDisposer = vscode.commands.registerTextEditorCommand("moyu.escape", clear)
+		const backspaceDisposer = vscode.commands.registerTextEditorCommand("moyu.backspace", backspace)
+		const command = overrideDefaultTypeEvent(inputHandler);
 	})
 }
 

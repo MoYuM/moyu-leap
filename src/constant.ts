@@ -43,7 +43,7 @@ export const MOVE_LINES = 5;
 /**
  * 模板
  */
-export const TEMPLETE: TempleteType = [
+export const TEMPLETE: TempleteType[] = [
   {
     name: 'log',
     command: 'log',
