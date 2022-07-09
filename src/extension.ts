@@ -174,12 +174,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 
-
 	/** 
 	 * snippet 模式
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.snippet mode', () => {
-		vscode.commands.executeCommand('hideSuggestWidget')
+
 		vscode.commands.executeCommand('setContext', 'moyu.snippetActive', true);
 		const dh = new Decoration();
 		const current = getCurrent();
@@ -189,7 +188,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const word = vscode.window.activeTextEditor?.document.getText(range);
 		if (!word) return;
 
-		let input = ''
+		let input = '';
 		let decoration = dh.create({
 			text: "",
 			range,
@@ -206,12 +205,12 @@ export function activate(context: vscode.ExtensionContext) {
 			escapeDisposer.dispose();
 			backspaceDisposer.dispose();
 			vscode.commands.executeCommand('setContext', 'moyu.snippetActive', false);
-		}
+		};
 
 		const backspace = () => {
 			input = input.slice(0, input.length - 1);
 			decoration = dh.update(decoration, input);
-		}
+		};
 
 		const inputHandler = ({ text }: { text: string }) => {
 			input += text.trim();
