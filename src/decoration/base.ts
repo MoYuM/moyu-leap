@@ -6,7 +6,7 @@ export interface ComponentState {
 
 export interface Component {
 	state: Record<string, any>
-	style: Record<string, any>
+	style?: Record<string, any>
 	/** 
 	 * create decorationTypes
 	 * 

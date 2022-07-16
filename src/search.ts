@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as CONFIG from './constant';
 import Finder from './finderInline';
 import { Target, Word } from './interface';
+import Input from './decoration/input';
 
 class Search {
   private textDoc?: vscode.TextDocument;
@@ -10,42 +11,14 @@ class Search {
     this.textDoc = vscode.window.activeTextEditor?.document;
   }
 
-  private objectToCssString(settings: any): string {
-    let value = '';
-    const cssString = Object.keys(settings).map(setting => {
-      value = settings[setting];
-      if (typeof value === 'string' || typeof value === 'number') {
-        return `${setting}: ${value};`
-      }
-    }).join(' ');
-
-    return cssString;
-  }
 
   private createDecoration(text?: string) {
-    const defaultCss = {
-      position: 'absolute',
-      top: 0,
-      height: '20px',
-      display: `inline-block`,
-      padding: '0 4px',
-      color: CONFIG.COLOR,
-      ['background-color']: CONFIG.BACKGROUNDCOLOR,
-      ['border-radius']: '2px',
-      ['line-height']: '20px',
-      ['z-index']: 1,
-      ['pointer-events']: 'none',
-    };
-
-    const css = this.objectToCssString(defaultCss);
-
-    return vscode.window.createTextEditorDecorationType({
-      before: {
-        contentText: text,
-        textDecoration: `none; ${css}`
-      },
-    })
+    const input = new Input();
+    input.setState({ value: text });
+    input.setStyle({ ['min-width']: 'auto' });
+    return input.createType()[0];
   }
+
 
   private generateTargets(count: number) {
 

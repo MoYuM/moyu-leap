@@ -8,11 +8,7 @@ class Input implements Component {
 	state = {
 		value: '',
 	}
-	style: Record<string, any>
-
-	constructor(style?: Record<string, any>) {
-		this.style = style || {};
-	}
+	style?: Record<string, any>
 
 	public createType(): vscode.TextEditorDecorationType[] {
 		const defaultCss = {
