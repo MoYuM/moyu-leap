@@ -73,36 +73,34 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 
-	// /**
-	//  * select next word
-	//  */
-	// registerTextEditorCommand('moyu.select next word', () => {
-	// 	const finder = new Finder();
-	// 	const range = finder.findNextWord();
-	// 	select(range);
-	// });
+	/**
+	 * select next word
+	 */
+	registerTextEditorCommand('moyu.select next word', () => {
+		const finder = new Finder();
+		const range = finder.findNextWord();
+		select(range);
+	});
 
 
-	// /**
-	//  * select pervious word
-	//  */
-	// registerTextEditorCommand('moyu.select pervious word', () => {
-	// 	const finder = new Finder();
-	// 	const range = finder.findPrevWord();
-	// 	select(range);
-	// });
+	/**
+	 * select pervious word
+	 */
+	registerTextEditorCommand('moyu.select pervious word', () => {
+		const finder = new Finder();
+		const range = finder.findPrevWord();
+		select(range);
+	});
 
 
 	/**
 	 * moyu.move to next bracket
 	 */
-	// registerTextEditorCommand('moyu.move to next bracket', () => {
-	// 	const finder = new Finder();
-	// 	const position = finder.findNextBracket();
-	// 	moveTo(position);
-	// });
-
-
+	registerTextEditorCommand('moyu.move to next bracket', () => {
+		const finder = new Finder();
+		const position = finder.findNextBracket();
+		moveTo(position);
+	});
 
 
 	/**
@@ -121,6 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 	});
+
 
 	/**
 	 * moyu.move down 5 lines
@@ -221,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
-		const handleBackspace = () => {
+		const handleDelete = () => {
 			const currentText = dh.getState('Input')?.value;
 
 			if (currentText) {
@@ -240,7 +239,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const listener = dh.listen(handleInput);
 		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
-		const backspaceDisposer = registerTextEditorCommand("moyu.backspace", handleBackspace);
+		const backspaceDisposer = registerTextEditorCommand("moyu.backspace", handleDelete);
 	})
 }
 
