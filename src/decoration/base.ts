@@ -49,7 +49,8 @@ class Decoration {
 
 
 	public update(key: string, newState: Record<string, any>, newRange?: vscode.Range) {
-		// TODO if the state is not change, then do not need update
+		// TODO if the state has not changed, there is no need to update
+		// need a isEqual function
 		this.setState(key, newState);
 		this.dispose();
 		this.draw(newRange || this.range as vscode.Range);
