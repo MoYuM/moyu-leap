@@ -17,7 +17,7 @@ class Input implements Component {
 	public createType(): vscode.TextEditorDecorationType[] {
 		const defaultCss = {
 			position: 'absolute',
-			top: 0,
+			top: '-20px',
 			height: '20px',
 			display: `inline-block`,
 			padding: '0 4px',
@@ -27,6 +27,7 @@ class Input implements Component {
 			['line-height']: '20px',
 			['z-index']: 1,
 			['pointer-events']: 'none',
+			['min-width']: '30px',
 			...this.style,
 		};
 

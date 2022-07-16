@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import createFile from './createFile';
 import createComponent from './createComponent';
 import Finder from './finderInline';
-import { getCurrent, getRootUri, getUserInput, moveTo, select } from './utils';
+import { getRootUri, getUserInput, moveTo, select, getCurrentWordAndRange } from './utils';
 import Search from './search';
 import * as CONFIG from './constant';
 import Decoration from './decoration/base';
 import Input from './decoration/input';
 import { createSnippetByTemplete, edit } from './snippet';
+
+const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.commands;
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -15,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * new file
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.new file', async () => {
+	registerTextEditorCommand('moyu.new file', async () => {
 		const rootPathURI = getRootUri();
 		const fileName = await getUserInput('请输入文件名称');
 		const res = await createFile(rootPathURI, fileName);
@@ -32,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * new component
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.new component', async () => {
+	registerTextEditorCommand('moyu.new component', async () => {
 		const rootPathURI = getRootUri();
 		const componentName = await getUserInput('请输入新组件名称')
 		if (!rootPathURI) return;
@@ -43,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * new component in global
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.new component in global', async () => {
+	registerTextEditorCommand('moyu.new component in global', async () => {
 		const rootPathURI = getRootUri();
 		const componentName = await getUserInput('请输入新组件名称');
 		if (!rootPathURI) return;
@@ -54,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * new page
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.new page', async () => {
+	registerTextEditorCommand('moyu.new page', async () => {
 		const rootPathURI = getRootUri();
 		const componentName = await getUserInput('请输入新页面名称');
 		if (!rootPathURI) return;
@@ -65,47 +67,80 @@ export function activate(context: vscode.ExtensionContext) {
 	/**
 	 * select nearest word
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.select neareast word', () => {
-		const finder = new Finder();
-		const word = finder.findNearestWord();
-		select(word.range);
-	});
-
-
-	/**
-	 * select next word
-	 */
-	vscode.commands.registerTextEditorCommand('moyu.select next word', () => {
-		const finder = new Finder();
-		const range = finder.findNextWord();
+	registerTextEditorCommand('moyu.select neareast word', () => {
+		const { range } = getCurrentWordAndRange()
 		select(range);
 	});
 
 
-	/**
-	 * select pervious word
-	 */
-	vscode.commands.registerTextEditorCommand('moyu.select pervious word', () => {
-		const finder = new Finder();
-		const range = finder.findPrevWord();
-		select(range);
-	});
+	// /**
+	//  * select next word
+	//  */
+	// registerTextEditorCommand('moyu.select next word', () => {
+	// 	const finder = new Finder();
+	// 	const range = finder.findNextWord();
+	// 	select(range);
+	// });
+
+
+	// /**
+	//  * select pervious word
+	//  */
+	// registerTextEditorCommand('moyu.select pervious word', () => {
+	// 	const finder = new Finder();
+	// 	const range = finder.findPrevWord();
+	// 	select(range);
+	// });
 
 
 	/**
 	 * moyu.move to next bracket
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.move to next bracket', () => {
-		const finder = new Finder();
-		const position = finder.findNextBracket();
-		moveTo(position);
+	// registerTextEditorCommand('moyu.move to next bracket', () => {
+	// 	const finder = new Finder();
+	// 	const position = finder.findNextBracket();
+	// 	moveTo(position);
+	// });
+
+
+
+
+	/**
+	 * moyu.move up 5 lines
+	 */
+	registerTextEditorCommand('moyu.move up', () => {
+		const current = vscode.window.activeTextEditor?.selection.active;
+		moveTo(
+			current?.with(
+				current.line - CONFIG.MOVE_LINES <= 0
+					? 0
+					: current.line - CONFIG.MOVE_LINES
+			),
+			{
+				withScroll: true
+			}
+		);
+	});
+
+	/**
+	 * moyu.move down 5 lines
+	 */
+	registerTextEditorCommand('moyu.move down', () => {
+		const current = vscode.window.activeTextEditor?.selection.active;
+		const newPosition = current?.with(
+			Math.min(
+				current.line + CONFIG.MOVE_LINES,
+				vscode.window.activeTextEditor?.document.lineCount as number
+			)
+		)
+		moveTo(newPosition, { withScroll: true });
 	});
 
 
 	/**
 	 * moyu.search mode
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.search mode', () => {
+	registerTextEditorCommand('moyu.search mode', () => {
 		const search = new Search();
 
 		let targets = search.findAllTargets();
@@ -143,80 +178,34 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	/**
-	 * moyu.move up 5 lines
-	 */
-	vscode.commands.registerTextEditorCommand('moyu.move up', () => {
-		const current = vscode.window.activeTextEditor?.selection.active;
-		moveTo(
-			current?.with(
-				current.line - CONFIG.MOVE_LINES <= 0
-					? 0
-					: current.line - CONFIG.MOVE_LINES
-			),
-			{
-				withScroll: true
-			}
-		);
-	});
-
-	/**
-	 * moyu.move down 5 lines
-	 */
-	vscode.commands.registerTextEditorCommand('moyu.move down', () => {
-		const current = vscode.window.activeTextEditor?.selection.active;
-		const newPosition = current?.with(
-			Math.min(
-				current.line + CONFIG.MOVE_LINES,
-				vscode.window.activeTextEditor?.document.lineCount as number
-			)
-		)
-		moveTo(newPosition, { withScroll: true });
-	});
-
 
 	/** 
 	 * snippet mode
 	 */
-	vscode.commands.registerTextEditorCommand('moyu.snippet mode', () => {
+	registerTextEditorCommand('moyu.snippet mode', () => {
+		const { range, word } = getCurrentWordAndRange();
+		if (!(range && word)) return;
 
-		let input = '';
-		vscode.commands.executeCommand('setContext', 'moyu.snippetActive', true);
-		const dh = new Decoration({ Input });
-		dh.setStyle('Input', {
-			top: '-20px',
-			['min-width']: '30px',
-		})
-
-		const current = getCurrent();
-		if (!current) return;
-
-		const range = vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current);
-		const word = vscode.window.activeTextEditor?.document.getText(range);
-		if (!word) return;
-		if (!range) return;
-
-		dh.draw(range);
+		executeCommand('hideSuggestWidget');
+		executeCommand('setContext', 'moyu.snippetActive', true);
 
 		const clear = () => {
 			dh.dispose();
-			command.dispose();
+			listener.dispose();
 			escapeDisposer.dispose();
 			backspaceDisposer.dispose();
-			vscode.commands.executeCommand('setContext', 'moyu.snippetActive', false);
+			executeCommand('setContext', 'moyu.snippetActive', false);
 		};
 
-		const backspace = () => {
-			input = input.slice(0, input.length - 1);
-			dh.update({ Input: { value: input } });
-		};
 
-		const inputHandler = ({ text }: { text: string }) => {
-			input += text.trim();
-			dh.update({ Input: { value: input } });
+		const handleInput = (text: string) => {
+			const currentText = dh.getState('Input')?.value;
+			const newText = currentText + text.trim()
+			dh.update('Input', { value: newText });
 
+			// type enter to confirm
 			if (text === '\n') {
-				const templete = CONFIG.TEMPLETE.find(i => i.command === input);
+				const templete = CONFIG.TEMPLETE.find(i => i.command === newText);
 
 				if (templete) {
 					const snippet = createSnippetByTemplete(word, templete);
@@ -232,15 +221,32 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
-		const escapeDisposer = vscode.commands.registerTextEditorCommand("moyu.escape", clear)
-		const backspaceDisposer = vscode.commands.registerTextEditorCommand("moyu.backspace", backspace)
-		const command = overrideDefaultTypeEvent(inputHandler);
+		const handleBackspace = () => {
+			const currentText = dh.getState('Input')?.value;
+
+			if (currentText) {
+				const newText = currentText.slice(0, currentText.length - 1)
+				dh.update('Input', { value: newText });
+			} else {
+
+				// dispose input if there is no content to delete
+				clear();
+				return;
+			}
+		}
+
+		const dh = new Decoration({ Input });
+		dh.draw(range);
+
+		const listener = dh.listen(handleInput);
+		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
+		const backspaceDisposer = registerTextEditorCommand("moyu.backspace", handleBackspace);
 	})
 }
 
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
-	return vscode.commands.registerCommand('type', (e) => {
+	return registerCommand('type', (e) => {
 		return callback(e)
 	});
 }

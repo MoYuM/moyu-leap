@@ -66,6 +66,25 @@ export const getCurrent = () => {
   return vscode.window.activeTextEditor?.selection.active;
 }
 
+/**
+ * get the word in the range that return by getWordRangeAtPosition()
+ */
+export const getCurrentWordAndRange = () => {
+  const current = getCurrent();
+  if (!current) return {}
+  const range = vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current)
+  if (!range) return {};
+  const word = vscode.window.activeTextEditor?.document.getText(range);
+  if (range && word) {
+    return {
+      range,
+      word,
+    }
+  } else {
+    return {}
+  }
+}
+
 export const objectToCssString = (settings: any) => {
   let value = '';
   const cssString = Object.keys(settings).map(setting => {
@@ -76,4 +95,8 @@ export const objectToCssString = (settings: any) => {
   }).join(' ');
 
   return cssString;
+}
+
+export const setContext = (command: string, value: any) => {
+  vscode.commands.executeCommand('setContext', command, value);
 }

@@ -49,10 +49,10 @@ class Decoration {
 	}
 
 
-	public update(newState: Record<string, ComponentState>, newRange?: vscode.Range) {
+	public update(key: string, newState: Record<string, any>, newRange?: vscode.Range) {
 		this.components.forEach(i => {
-			if (newState[i.key]) {
-				i.component.setState(newState[i.key]);
+			if (newState[key]) {
+				i.component.setState(newState);
 			}
 		});
 
@@ -70,8 +70,19 @@ class Decoration {
 		return this.components.find(i => i.key === key)?.component;
 	}
 
+	public getState(key: string) {
+		return this.getComponent(key)?.state;
+	}
+
 	public setStyle(key: string, style: Record<string, any>) {
 		this.getComponent(key)?.setStyle(style);
+	}
+
+	/** overwrite vscode type event */
+	public listen(callback: (key: string) => void) {
+		return vscode.commands.registerCommand('type', ({ text }) => {
+			callback(text);
+		});
 	}
 }
 
