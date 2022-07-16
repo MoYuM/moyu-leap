@@ -37,11 +37,10 @@ class Decoration {
 
 	public draw(range: vscode.Range) {
 		this.range = range;
-
 		this.components.forEach(i => {
-			const type = i.component.createType();
+			const types = i.component.createType();
 
-			type.forEach(t => {
+			types.forEach(t => {
 				vscode.window.activeTextEditor?.setDecorations(t, [range])
 				this.disposers.push(t.dispose);
 			})
@@ -50,12 +49,8 @@ class Decoration {
 
 
 	public update(key: string, newState: Record<string, any>, newRange?: vscode.Range) {
-		this.components.forEach(i => {
-			if (newState[key]) {
-				i.component.setState(newState);
-			}
-		});
-
+		// TODO if the state is not change, then do not need update
+		this.setState(key, newState);
 		this.dispose();
 		this.draw(newRange || this.range as vscode.Range);
 	}
@@ -72,6 +67,10 @@ class Decoration {
 
 	public getState(key: string) {
 		return this.getComponent(key)?.state;
+	}
+
+	public setState(key: string, newState: Record<string, any>) {
+		return this.getComponent(key)?.setState(newState);
 	}
 
 	public setStyle(key: string, style: Record<string, any>) {

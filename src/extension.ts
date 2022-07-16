@@ -7,6 +7,7 @@ import Search from './search';
 import * as CONFIG from './constant';
 import Decoration from './decoration/base';
 import Block from './decoration/block';
+import List from './decoration/list';
 import { createSnippetByTemplete, edit } from './snippet';
 
 const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.commands;
@@ -199,12 +200,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const handleInput = (text: string) => {
 			const currentText = dh.getState('Input')?.value;
-			const newText = currentText + text.trim()
-			dh.update('Input', { value: newText });
+			const currentList = dh.getState('List')?.list;
+			const value = currentText + text.trim()
+			const activeKey = currentList?.find((i: { label: string, key: string }) => i.label.includes(value))?.key;
+
+			dh.update('Input', { value });
+			if (activeKey) {
+				dh.update('List', { activeKey });
+			}
 
 			// type enter to confirm
 			if (text === '\n') {
-				const templete = CONFIG.TEMPLETE.find(i => i.command === newText);
+
+				// auto comfirm when there is activeKey
+				const templete = CONFIG.TEMPLETE.find(i => i.command === (activeKey || value));
 
 				if (templete) {
 					const snippet = createSnippetByTemplete(word, templete);
@@ -234,7 +243,13 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
-		const dh = new Decoration({ Input:Block });
+		const dh = new Decoration({ Input: Block, List });
+		dh.setState('List', {
+			list: CONFIG.TEMPLETE.map(i => ({
+				label: i.command,
+				key: i.name
+			})),
+		})
 		dh.draw(range);
 
 		const listener = dh.listen(handleInput);
