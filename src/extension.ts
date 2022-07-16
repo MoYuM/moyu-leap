@@ -5,7 +5,8 @@ import Finder from './finderInline';
 import { getCurrent, getRootUri, getUserInput, moveTo, select } from './utils';
 import Search from './search';
 import * as CONFIG from './constant';
-import Decoration from './decoration';
+import Decoration from './decoration/base';
+import Input from './decoration/input';
 import { createSnippetByTemplete, edit } from './snippet';
 
 
@@ -175,32 +176,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	/** 
-	 * snippet 模式
+	 * snippet mode
 	 */
 	vscode.commands.registerTextEditorCommand('moyu.snippet mode', () => {
 
+		let input = '';
 		vscode.commands.executeCommand('setContext', 'moyu.snippetActive', true);
-		const dh = new Decoration();
+		const dh = new Decoration({ Input });
+		dh.setStyle('Input', {
+			top: '-20px',
+			['min-width']: '30px',
+		})
+
 		const current = getCurrent();
 		if (!current) return;
 
 		const range = vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current);
 		const word = vscode.window.activeTextEditor?.document.getText(range);
 		if (!word) return;
+		if (!range) return;
 
-		let input = '';
-		let decoration = dh.create({
-			text: "",
-			range,
-			style: {
-				top: '-20px',
-				['min-width']: '30px'
-			}
-		});
-		dh.draw(decoration);
+		dh.draw(range);
 
 		const clear = () => {
-			decoration.dispose();
+			dh.dispose();
 			command.dispose();
 			escapeDisposer.dispose();
 			backspaceDisposer.dispose();
@@ -209,19 +208,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const backspace = () => {
 			input = input.slice(0, input.length - 1);
-			decoration = dh.update(decoration, input);
+			dh.update({ Input: { value: input } });
 		};
 
 		const inputHandler = ({ text }: { text: string }) => {
 			input += text.trim();
-			decoration = dh.update(decoration, decoration.content + text);
+			dh.update({ Input: { value: input } });
 
 			if (text === '\n') {
 				const templete = CONFIG.TEMPLETE.find(i => i.command === input);
 
 				if (templete) {
 					const snippet = createSnippetByTemplete(word, templete);
-					clear();
 					edit({
 						snippet,
 						newLine: templete?.newLine,
@@ -229,6 +227,8 @@ export function activate(context: vscode.ExtensionContext) {
 						replaceRange: range,
 					})
 				}
+
+				clear();
 			}
 		}
 
