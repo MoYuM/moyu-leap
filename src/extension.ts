@@ -6,7 +6,7 @@ import { getRootUri, getUserInput, moveTo, select, getCurrentWordAndRange } from
 import Search from './search';
 import * as CONFIG from './constant';
 import Decoration from './decoration/base';
-import Input from './decoration/input';
+import Block from './decoration/block';
 import { createSnippetByTemplete, edit } from './snippet';
 
 const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.commands;
@@ -234,7 +234,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
-		const dh = new Decoration({ Input });
+		const dh = new Decoration({ Input:Block });
 		dh.draw(range);
 
 		const listener = dh.listen(handleInput);

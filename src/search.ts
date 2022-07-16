@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as CONFIG from './constant';
 import Finder from './finderInline';
 import { Target, Word } from './interface';
-import Input from './decoration/input';
+import Block from './decoration/block';
 
 class Search {
   private textDoc?: vscode.TextDocument;
@@ -13,10 +13,10 @@ class Search {
 
 
   private createDecoration(text?: string) {
-    const input = new Input();
-    input.setState({ value: text });
-    input.setStyle({ ['min-width']: 'auto' });
-    return input.createType()[0];
+    const block = new Block();
+    block.setState({ value: text });
+    block.setStyle({ ['min-width']: 'auto' });
+    return block.createType()[0];
   }
 
 

@@ -4,7 +4,7 @@ import { Component, ComponentState } from './base';
 import { objectToCssString } from '../utils';
 
 
-class Input implements Component {
+class Block implements Component {
 	state = {
 		value: '',
 	}
@@ -51,4 +51,4 @@ class Input implements Component {
 	}
 }
 
-export default Input;
+export default Block;
