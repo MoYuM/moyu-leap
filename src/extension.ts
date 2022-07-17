@@ -194,6 +194,8 @@ export function activate(context: vscode.ExtensionContext) {
 			listener.dispose();
 			escapeDisposer.dispose();
 			backspaceDisposer.dispose();
+			upDisposer.dispose();
+			downDisposer.dispose();
 			executeCommand('setContext', 'moyu.snippetActive', false);
 		};
 
@@ -202,18 +204,19 @@ export function activate(context: vscode.ExtensionContext) {
 			const currentText = dh.getState('Input')?.value;
 			const currentList = dh.getState('List')?.list;
 			const value = currentText + text.trim()
-			const activeKey = currentList?.find((i: { label: string, key: string }) => i.label.includes(value))?.key;
+			const { label, key } = currentList?.find((i: { label: string, key: string }) => i.label.includes(value));
 
 			dh.update('Input', { value });
-			if (activeKey) {
-				dh.update('List', { activeKey });
+			if (key) {
+				dh.update('List', { activeKey: key });
 			}
 
 			// type enter to confirm
 			if (text === '\n') {
 
+
 				// auto comfirm when there is activeKey
-				const templete = CONFIG.TEMPLETE.find(i => i.command === (activeKey || value));
+				const templete = CONFIG.TEMPLETE.find(i => i.command === (label || value));
 
 				if (templete) {
 					const snippet = createSnippetByTemplete(word, templete);
@@ -239,7 +242,34 @@ export function activate(context: vscode.ExtensionContext) {
 
 				// dispose input if there is no content to delete
 				clear();
-				return;
+			}
+		}
+
+		const handleUp = () => {
+			const { activeKey, list } = dh.getState('List');
+			if (activeKey) {
+				const currentIndex = list.findIndex((i: { key: string }) => i.key === activeKey);
+				const { key, label } = list.at(currentIndex - 1);
+				dh.update('Input', { value: label });
+				dh.update('List', { activeKey: key });
+			} else {
+				const { key, label } = list.at(-1);
+				dh.update('Input', { value: label });
+				dh.update('List', { activeKey: key });
+			}
+		}
+
+		const handleDown = () => {
+			const { activeKey, list } = dh.getState('List');
+			if (activeKey) {
+				const currentIndex = list.findIndex((i: { key: string }) => i.key === activeKey);
+				const { key, label } = list.at(currentIndex + 1);
+				dh.update('Input', { value: label });
+				dh.update('List', { activeKey: key });
+			} else {
+				const { key, label } = list.at(0);
+				dh.update('Input', { value: label });
+				dh.update('List', { activeKey: key });
 			}
 		}
 
@@ -255,6 +285,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const listener = dh.listen(handleInput);
 		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
 		const backspaceDisposer = registerTextEditorCommand("moyu.backspace", handleDelete);
+		const upDisposer = registerTextEditorCommand("moyu.up", handleUp);
+		const downDisposer = registerTextEditorCommand("moyu.down", handleDown);
 	})
 }
 

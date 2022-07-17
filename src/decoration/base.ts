@@ -67,7 +67,7 @@ class Decoration {
 	}
 
 	public getState(key: string) {
-		return this.getComponent(key)?.state;
+		return this.getComponent(key)?.state || {};
 	}
 
 	public setState(key: string, newState: Record<string, any>) {

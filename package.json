@@ -79,6 +79,16 @@
         "command": "moyu.backspace",
         "key": "backspace",
         "when": "moyu.snippetActive"
+      },
+      {
+        "command": "moyu.up",
+        "key": "up",
+        "when": "moyu.snippetActive"
+      },
+      {
+        "command": "moyu.down",
+        "key": "down",
+        "when": "moyu.snippetActive"
       }
     ]
   },
