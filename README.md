@@ -19,13 +19,13 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 
 | 命令                      | 功能                                   | 默认按键              |
 | ------------------------- | -------------------------------------- | --------------------- |
-| moyu.select neareast word | 在当前行中，选中距离光标最近的一个单词 | `shift` + `cmd` + `/` |
 | moyu.select next word     | 在当前行中，选中下一个单词             | `shift` + `cmd` + `.` |
 | moyu.select pervious word | 在当前行中，选中上一个单词             | `shift` + `cmd` + `,` |
 | moyu.select next brackets | 在当前行中，移动光标到下一个`(`后面    | `shift` + `cmd` + `9` |
 | moyu.move up              | 向上移动光标 5 行                      | `alt` + `k`           |
 | moyu.move down            | 向下移动光标 5 行                      | `alt` + `j`           |
-| moyu.search mode          | 开启 [search mode](#search-mode)       | `cmd` + `e` |
+| moyu.select neareast word | 在当前行中，选中距离光标最近的一个单词 | `cmd` + `e` |
+| moyu.search mode          | 开启 [search mode](#search-mode)       | `cmd` + `m` |
 | moyu.snippet mode         | 开启 [snippet](#snippet-mode)          | `cmd` + `k`           |
 
 ### Search Mode
@@ -35,11 +35,12 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 
 ### Snippet Mode
 
-将光标移动到你想生成代码片段的单词上，然后按 `alt+q`，开启 snippet mode。然后输入模板名称，比如 `log`，按回车确定，就能生成一个代码片段了。
+将光标移动到你想生成代码片段的单词上，然后按 `cmd+k`（默认），开启 snippet mode。然后输入模板名称，比如 `log`，按回车确定，就能生成一个代码片段了。
+![snippet-mode-git](./images/snippet-mode.gif)
 
 ### TODO
 
 - [x] log
 - [x] 快速移动光标
-- [ ] snippet mode 支持自动填充
+- [x] snippet mode 支持自动填充
 - [ ] 所有功能配置化
