@@ -23,10 +23,10 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 | moyu.select next word     | 在当前行中，选中下一个单词             | `shift` + `cmd` + `.` |
 | moyu.select pervious word | 在当前行中，选中上一个单词             | `shift` + `cmd` + `,` |
 | moyu.select next brackets | 在当前行中，移动光标到下一个`(`后面    | `shift` + `cmd` + `9` |
-| moyu.search mode          | 开启 [search mode](#search-mode)       | `shift` + `cmd` + `0` |
 | moyu.move up              | 向上移动光标 5 行                      | `alt` + `k`           |
 | moyu.move down            | 向下移动光标 5 行                      | `alt` + `j`           |
-| moyu.snippet mode         | 开启 [snippet](#snippet-mode)          | `alt` + `q`           |
+| moyu.search mode          | 开启 [search mode](#search-mode)       | `cmd` + `e` |
+| moyu.snippet mode         | 开启 [snippet](#snippet-mode)          | `cmd` + `k`           |
 
 ### Search Mode
 
