@@ -28,6 +28,7 @@ export const editSnippet = (config: {
       snippet,
       position.with(position.line + 1)
     )
+    return;
   }
 
   if (replaceRange) {
