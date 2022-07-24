@@ -8,7 +8,7 @@ import * as CONFIG from './constant';
 import Decoration from './decoration/base';
 import Block from './decoration/block';
 import List from './decoration/list';
-import { createSnippetByTemplete, edit } from './snippet';
+import { createSnippetByTemplete, editSnippet } from './snippet';
 
 const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.commands;
 
@@ -220,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 				if (templete) {
 					const snippet = createSnippetByTemplete(word, templete);
-					edit({
+					editSnippet({
 						snippet,
 						newLine: templete?.newLine,
 						position: range?.end,

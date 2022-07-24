@@ -31,7 +31,7 @@ class List implements Component {
       const block = new Block();
       block.setState({ value: i.label });
       block.setStyle({
-        top: `${index * 20}px`,
+        ['top']: `${index * 20}px`,
         ['min-width']: '200px',
       });
 

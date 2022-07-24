@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { TEMPLETE, VARIABLE } from './constant';
+import { VARIABLE } from './constant';
 import { TempleteType } from './interface';
-import { moveTo } from './utils';
 
-export const edit = (config: {
+const { insertSnippet, edit } = vscode.window.activeTextEditor || {};
+
+export const editSnippet = (config: {
   /** 另起一行 */
   newLine?: boolean,
   snippet: vscode.SnippetString,
@@ -18,30 +19,27 @@ export const edit = (config: {
   } = config;
   if (!position) return;
   if (newLine) {
-    vscode.window.activeTextEditor?.insertSnippet(
+    insertSnippet?.(
       new vscode.SnippetString('\n'),
       position.with(position.line + 1, 0)
     )
 
-    vscode.window.activeTextEditor?.insertSnippet(
+    insertSnippet?.(
       snippet,
       position.with(position.line + 1)
     )
   }
 
   if (replaceRange) {
-    vscode.window.activeTextEditor?.edit((editor) => {
+    edit?.((editor) => {
       if (!replaceRange) return;
       editor.delete(replaceRange);
-      editor.insert(replaceRange.start, snippet.value);
     })
+    insertSnippet?.(
+      snippet,
+      replaceRange.start,
+    )
   }
-}
-
-export const createSnippet = (
-  text: string,
-) => {
-  return new vscode.SnippetString(text);
 }
 
 export const createSnippetByTemplete = (text: string, templete: TempleteType) => {

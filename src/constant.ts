@@ -48,7 +48,7 @@ export const TEMPLETE: TempleteType[] = [
     name: 'log',
     command: 'log',
     newLine: true,
-    body: "console.log('${TEXT}',${TEXT})",
+    body: "console.log('${TEXT} ==> ',${TEXT})",
   },
   {
     name: 'useState',
@@ -66,7 +66,7 @@ export const TEMPLETE: TempleteType[] = [
     name: 'tags',
     command: '<>',
     newLine: false,
-    body: "<${TEXT}></${TEXT}>",
+    body: "<${TEXT}>$1</${TEXT}>",
   }
 ]
 
@@ -87,5 +87,5 @@ export const VARIABLE: VariableType = [
         return i
       }
     }).join('')
-  }
+  },
 ]
