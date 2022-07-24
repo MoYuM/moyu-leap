@@ -58,15 +58,15 @@ export const TEMPLETE: TempleteType[] = [
   },
   {
     name: 'tag',
-    command: '/',
+    command: 'singleTag',
     newLine: false,
     body: "<${TEXT} />",
   },
   {
     name: 'tags',
-    command: '<>',
+    command: 'doubleTag',
     newLine: false,
-    body: "<${TEXT}>$1</${TEXT}>",
+    body: "<${TEXT}>$0</${TEXT}>",
   }
 ]
 
