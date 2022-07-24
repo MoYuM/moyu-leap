@@ -141,21 +141,28 @@ export function activate(context: vscode.ExtensionContext) {
 	 * moyu.search mode
 	 */
 	registerTextEditorCommand('moyu.search mode', () => {
+		executeCommand('hideSuggestWidget');
+		executeCommand('setContext', 'moyu.searchActive', true);
+
 		const search = new Search();
 
 		let targets = search.findAllTargets();
 		let disposeCount = 0;
 		let total = targets.length;
 		let typeList: string[] = [];
+
 		search.showTargets(targets);
 
-		const command = overrideDefaultTypeEvent(({ text }) => {
-			if (text === CONFIG.EXITSEARCHMODE) {
-				search.disposeTargets(targets);
-				command.dispose();
-				return;
-			}
+		const clear = () => {
+			executeCommand('setContext', 'moyu.searchActive', false);
+			command.dispose();
+			escapeDisposer.dispose();
+			search.disposeTargets(targets);
+			typeList = [];
+			targets = [];
+		}
 
+		const handleInput = (text: string) => {
 			typeList.push(text);
 
 			const needDisposeTargets = targets?.filter(i => !typeList.every((j, index) => i.key[index] === j));
@@ -165,17 +172,19 @@ export function activate(context: vscode.ExtensionContext) {
 			search.disposeTargets(needDisposeTargets);
 
 			if (disposeCount === total) {
-				command.dispose();
+				clear();
 				return;
 			}
 
 			if (total - disposeCount === 1) {
 				moveTo(targets[0].range.start);
-				targets[0].dispose();
-				command.dispose();
+				clear();
 				return;
 			}
-		});
+		}
+
+		const command = overrideDefaultTypeEvent(({ text }) => handleInput(text));
+		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
 	});
 
 
@@ -214,7 +223,6 @@ export function activate(context: vscode.ExtensionContext) {
 			// type enter to confirm
 			if (text === '\n') {
 
-
 				// auto comfirm when there is activeKey
 				const templete = CONFIG.TEMPLETE.find(i => i.command === (label || value));
 
@@ -239,9 +247,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const newText = currentText.slice(0, currentText.length - 1)
 				dh.update('Input', { value: newText });
 			} else {
-
-				// dispose input if there is no content to delete
-				clear();
+				clear(); // dispose input if there is no content to delete
 			}
 		}
 

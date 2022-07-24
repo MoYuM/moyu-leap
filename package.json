@@ -73,7 +73,7 @@
       {
         "command": "moyu.escape",
         "key": "escape",
-        "when": "moyu.snippetActive"
+        "when": "moyu.snippetActive || moyu.searchActive"
       },
       {
         "command": "moyu.backspace",

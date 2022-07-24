@@ -11,11 +11,14 @@ class Search {
     this.textDoc = vscode.window.activeTextEditor?.document;
   }
 
-
   private createDecoration(text?: string) {
     const block = new Block();
     block.setState({ value: text });
-    block.setStyle({ ['min-width']: 'auto' });
+    block.setStyle({
+      ['min-width']: 'auto',
+      ['top']: '0px',
+      ['opacity']: '0.7',
+    });
     return block.createType()[0];
   }
 
