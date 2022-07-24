@@ -31,12 +31,12 @@ moyu-template 提供了以下的几个 Commands 和 Keybindings。对于 Command
 ### Search Mode
 
 灵感来自 [vim-easymotion](https://github.com/easymotion/vim-easymotion)，可快速定位光标到任意位置
-![search-mode-gif](./images/search-mode.gif)
+![search-mode.gif](https://s2.loli.net/2022/07/24/v4ct5pBdTw2Dyeq.gif)
 
 ### Snippet Mode
 
 将光标移动到你想生成代码片段的单词上，然后按 `cmd+k`（默认），开启 snippet mode。然后输入模板名称，比如 `log`，按回车确定，就能生成一个代码片段了。
-![snippet-mode-git](./images/snippet-mode.gif)
+![snippet-mode.gif](https://s2.loli.net/2022/07/24/WlpHguaiIBqXLtK.gif)
 
 ### TODO
 
