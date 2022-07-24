@@ -213,7 +213,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const currentText = dh.getState('Input')?.value;
 			const currentList = dh.getState('List')?.list;
 			const value = currentText + text.trim()
-			const { label, key } = currentList?.find((i: { label: string, key: string }) => i.label.includes(value));
+			const { label, key } = currentList?.find((i: { label: string, key: string }) => i?.label?.includes(value)) || {};
 
 			dh.update('Input', { value });
 			if (key) {
@@ -280,6 +280,13 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		const dh = new Decoration({ Input: Block, List });
+		dh.setStyle('Input', {
+			['background-color']: '#D0D8D9',
+			['color']: '#40362E',
+			['border-radius']: '5px',
+			['font-weight']: '700',
+			['box-shadow']: '0px 0px 16px 0px #D0D8D9',
+		})
 		dh.setState('List', {
 			list: CONFIG.TEMPLETE.map(i => ({
 				label: i.command,

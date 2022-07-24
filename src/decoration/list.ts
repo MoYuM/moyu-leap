@@ -24,20 +24,46 @@ class List implements Component {
     }
   }
 
+  private getListItemStyle(index: number) {
+    const style: Record<string, string> = {};
+    const lastIndex = this.state.list.length - 1;
+
+    style['min-width'] = '200px';
+    style['top'] = `${index * 20 + 5}px`;
+    style['background-color'] = '#D0D8D9';
+    style['color'] = '#40362E';
+    style['border-radius'] = '0';
+
+    if (index === 0) {
+      style['border-radius'] = `5px 5px 0 0`;
+    } else if (index === lastIndex) {
+      style['border-radius'] = `0 0 5px 5px`
+    }
+
+    return style;
+  }
+
+  private getActiveItemStyle () {
+    return {
+      background: '#D92818',
+      color: 'white',
+      ['box-shadow']: '0px 0px 11px 0px #BF372A',
+      ['z-index']: '999',
+    }
+  }
+
   public createType(): vscode.TextEditorDecorationType[] {
     const { list, activeKey } = this.state;
     const types: vscode.TextEditorDecorationType[] = [];
+
     list.forEach((i, index) => {
       const block = new Block();
       block.setState({ value: i.label });
-      block.setStyle({
-        ['top']: `${index * 20}px`,
-        ['min-width']: '200px',
-      });
+      block.setStyle(this.getListItemStyle(index));
 
       // TODO make background color is configable
       if (activeKey === i.key) {
-        block.setStyle({ background: 'red' });
+        block.setStyle(this.getActiveItemStyle());
       }
 
       const type = block.createType()[0];
