@@ -5,7 +5,7 @@
   "repository": "https://github.com/MoYuM/moyu-template",
   "description": "包含了个人常用功能的vscode插件",
   "icon": "images/icon.png",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "engines": {
     "vscode": "^1.62.0"
   },
