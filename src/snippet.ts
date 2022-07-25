@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { VARIABLE } from './constant';
 import { TempleteType } from './interface';
 
-const { insertSnippet, edit } = vscode.window.activeTextEditor || {};
 
 export const editSnippet = (config: {
   /** 另起一行 */
@@ -11,6 +10,7 @@ export const editSnippet = (config: {
   position?: vscode.Position,
   replaceRange?: vscode.Range,
 }) => {
+  const { insertSnippet, edit } = vscode.window.activeTextEditor || {};
   const {
     snippet,
     position,
