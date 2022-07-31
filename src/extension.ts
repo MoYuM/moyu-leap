@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 				);
 				targets = finder
 					.generateTargets(positions.length)
-					.filter((_, index) => !!positions.at(index))
+					.filter((_, index) => !!positions[index])
 					.map((i, index) => {
 						const pos = positions[index];
 						const range: vscode.Range = new vscode.Range(pos, pos.with(pos.line, pos.character + 1))
@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 				isFirst = false;
 			} else {
-				const isFound = targets.filter(i => i.value.at(-1) === text).length === 1;
+				const isFound = targets.filter(i => i.value.endsWith(text)).length === 1;
 				if (isFound) {
 					moveTo(targets.find(i => i.value.includes(text))?.range.start);
 					clear();
