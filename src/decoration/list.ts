@@ -43,7 +43,7 @@ class List implements Component {
     return style;
   }
 
-  private getActiveItemStyle () {
+  private getActiveItemStyle() {
     return {
       background: '#D92818',
       color: 'white',
@@ -71,6 +71,18 @@ class List implements Component {
     })
 
     return types;
+  }
+
+  draw(range: vscode.Range[]): (() => void)[] {
+    const types = this.createType();
+    const disposers: Array<() => void> = [];
+
+    types.forEach(t => {
+      disposers.push(t.dispose);
+      vscode.window.activeTextEditor?.setDecorations(t, range)
+    })
+
+    return disposers;
   }
 
   public setState(newState: ListStateType): void {

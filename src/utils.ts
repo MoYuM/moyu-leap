@@ -100,3 +100,8 @@ export const objectToCssString = (settings: any) => {
 export const setContext = (command: string, value: any) => {
   vscode.commands.executeCommand('setContext', command, value);
 }
+
+/**
+ * 最小不会小于零
+ */
+export const zeroMin = (val: number) => Math.max(val, 0);

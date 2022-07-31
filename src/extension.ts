@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
-import createFile from './createFile';
-import createComponent from './createComponent';
-import Finder from './finderInline';
-import { getRootUri, getUserInput, moveTo, select, getCurrentWordAndRange } from './utils';
-import Search from './search';
+import { moveTo, select, getCurrentWordAndRange, getCurrent, zeroMin } from './utils';
+import finder from './finder';
 import * as CONFIG from './constant';
 import Decoration from './decoration/base';
 import Block from './decoration/block';
+import MultiBlock from './decoration/multi-block';
 import List from './decoration/list';
 import { createSnippetByTemplete, editSnippet } from './snippet';
 
@@ -14,93 +12,12 @@ const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.co
 
 
 export function activate(context: vscode.ExtensionContext) {
-
-	/**
-	 * new file
-	 */
-	registerTextEditorCommand('moyu.new file', async () => {
-		const rootPathURI = getRootUri();
-		const fileName = await getUserInput('请输入文件名称');
-		const res = await createFile(rootPathURI, fileName);
-
-		if (res.result && res.uri) {
-			await vscode.window.showTextDocument(res.uri, { preview: false })
-			vscode.window.showInformationMessage('创建成功');
-		} else {
-			vscode.window.showErrorMessage('创建失败')
-		}
-	})
-
-
-	/**
-	 * new component
-	 */
-	registerTextEditorCommand('moyu.new component', async () => {
-		const rootPathURI = getRootUri();
-		const componentName = await getUserInput('请输入新组件名称')
-		if (!rootPathURI) return;
-		await createComponent(rootPathURI, componentName, 'currentPageComponent')
-	})
-
-
-	/**
-	 * new component in global
-	 */
-	registerTextEditorCommand('moyu.new component in global', async () => {
-		const rootPathURI = getRootUri();
-		const componentName = await getUserInput('请输入新组件名称');
-		if (!rootPathURI) return;
-		await createComponent(rootPathURI, componentName, 'globalComponent')
-	})
-
-
-	/**
-	 * new page
-	 */
-	registerTextEditorCommand('moyu.new page', async () => {
-		const rootPathURI = getRootUri();
-		const componentName = await getUserInput('请输入新页面名称');
-		if (!rootPathURI) return;
-		await createComponent(rootPathURI, componentName, 'page')
-	})
-
-
 	/**
 	 * select nearest word
 	 */
 	registerTextEditorCommand('moyu.select neareast word', () => {
 		const { range } = getCurrentWordAndRange()
 		select(range);
-	});
-
-
-	/**
-	 * select next word
-	 */
-	registerTextEditorCommand('moyu.select next word', () => {
-		const finder = new Finder();
-		const range = finder.findNextWord();
-		select(range);
-	});
-
-
-	/**
-	 * select pervious word
-	 */
-	registerTextEditorCommand('moyu.select pervious word', () => {
-		const finder = new Finder();
-		const range = finder.findPrevWord();
-		select(range);
-	});
-
-
-	/**
-	 * moyu.move to next bracket
-	 */
-	registerTextEditorCommand('moyu.move to next bracket', () => {
-		const finder = new Finder();
-		const position = finder.findNextBracket();
-		moveTo(position);
 	});
 
 
@@ -144,43 +61,58 @@ export function activate(context: vscode.ExtensionContext) {
 		executeCommand('hideSuggestWidget');
 		executeCommand('setContext', 'moyu.searchActive', true);
 
-		const search = new Search();
+		const line = getCurrent()?.line;
+		if (line === undefined) return;
 
-		let targets = search.findAllTargets();
-		let disposeCount = 0;
-		let total = targets.length;
-		let typeList: string[] = [];
+		let isFirst = true;
+		let targets: { value: string, range: vscode.Range }[] = [];
 
-		search.showTargets(targets);
+		const searchRange = 20;
+		const lineCount = vscode.window.activeTextEditor?.document.lineCount || 0;
+		const dh = new Decoration({ MultiBlock });
+
+		const handleInput = (text: string) => {
+			if (isFirst) {
+				const positions = finder.findLetterBetweenLines(
+					text,
+					zeroMin(line - searchRange),
+					Math.min(line + searchRange, lineCount)
+				);
+				targets = finder
+					.generateTargets(positions.length)
+					.filter((_, index) => !!positions.at(index))
+					.map((i, index) => {
+						const pos = positions[index];
+						const range: vscode.Range = new vscode.Range(pos, pos.with(pos.line, pos.character + 1))
+						return {
+							value: i,
+							range: range
+						}
+					})
+				dh.setState('MultiBlock', { values: targets.map(i => i.value) });
+				dh.draw(targets.map(i => i.range));
+
+				isFirst = false;
+			} else {
+				const isFound = targets.filter(i => i.value.at(-1) === text).length === 1;
+				if (isFound) {
+					moveTo(targets.find(i => i.value.includes(text))?.range.start);
+					clear();
+				} else {
+					targets = targets.filter(i => i.value.includes(text));
+					dh.setState('MultiBlock', { values: targets.map(i => i.value) });
+					dh.dispose();
+					dh.draw(targets.map(i => i.range));
+				}
+			}
+		}
 
 		const clear = () => {
 			executeCommand('setContext', 'moyu.searchActive', false);
 			command.dispose();
-			escapeDisposer.dispose();
-			search.disposeTargets(targets);
-			typeList = [];
+			dh.dispose();
 			targets = [];
-		}
-
-		const handleInput = (text: string) => {
-			typeList.push(text);
-
-			const needDisposeTargets = targets?.filter(i => !typeList.every((j, index) => i.key[index] === j));
-			targets = targets.filter(i => typeList.every((j, index) => i.key[index] === j));
-
-			disposeCount += needDisposeTargets.length;
-			search.disposeTargets(needDisposeTargets);
-
-			if (disposeCount === total) {
-				clear();
-				return;
-			}
-
-			if (total - disposeCount === 1) {
-				moveTo(targets[0].range.start);
-				clear();
-				return;
-			}
+			escapeDisposer.dispose();
 		}
 
 		const command = overrideDefaultTypeEvent(({ text }) => handleInput(text));
@@ -293,7 +225,7 @@ export function activate(context: vscode.ExtensionContext) {
 				key: i.name
 			})),
 		})
-		dh.draw(range);
+		dh.draw([range]);
 
 		const listener = dh.listen(handleInput);
 		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
@@ -312,3 +244,14 @@ function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
+
+
+function findLetterPositionInline(letter: string, lineCount: number): (vscode.Position | undefined) {
+	const line = vscode.window.activeTextEditor?.document.lineAt(lineCount);
+	if (line?.isEmptyOrWhitespace) return;
+
+	return new vscode.Position(
+		lineCount,
+		line?.firstNonWhitespaceCharacterIndex || 0 + (line?.text.indexOf(letter) || 0)
+	)
+}

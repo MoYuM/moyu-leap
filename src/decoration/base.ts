@@ -14,6 +14,8 @@ export interface Component {
 	 */
 	createType(): vscode.TextEditorDecorationType[]
 
+	draw(range: vscode.Range[]): Array<() => void>
+
 	setState(newState: ComponentState): void
 
 	setStyle(newStyle: Record<string, any>): void
@@ -25,7 +27,7 @@ export interface Component {
 class Decoration {
 	components: { component: Component, key: string }[];
 	disposers: Array<() => void> = [];
-	range?: vscode.Range;
+	ranges?: vscode.Range[];
 
 	constructor(components: Record<string, new () => Component>) {
 		this.components = Object.keys(components).map(i => ({
@@ -35,25 +37,25 @@ class Decoration {
 	}
 
 
-	public draw(range: vscode.Range) {
-		this.range = range;
+	public draw(ranges: vscode.Range[]) {
+		this.ranges = ranges;
+		let newDisposers: Array<() => void> = [];
 		this.components.forEach(i => {
-			const types = i.component.createType();
-
-			types.forEach(t => {
-				vscode.window.activeTextEditor?.setDecorations(t, [range])
-				this.disposers.push(t.dispose);
-			})
+			const disposers = i.component.draw(ranges);
+			newDisposers = [...newDisposers, ...disposers];
 		})
+		this.disposers = newDisposers;
 	}
 
 
-	public update(key: string, newState: Record<string, any>, newRange?: vscode.Range) {
+	public update(key: string, newState: Record<string, any>) {
 		// TODO if the state has not changed, there is no need to update
 		// need a isEqual function
 		this.setState(key, newState);
 		this.dispose();
-		this.draw(newRange || this.range as vscode.Range);
+		if (this.ranges) {
+			this.draw(this.ranges);
+		}
 	}
 
 

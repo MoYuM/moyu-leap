@@ -38,6 +38,15 @@ class Block implements Component {
 		return [type];
 	}
 
+	draw(range: vscode.Range[]): (() => void)[] {
+		const type = this.createType().at(0);
+		if (type) {
+			vscode.window.activeTextEditor?.setDecorations(type, range)
+			return [type.dispose]
+		}
+		return [];
+	}
+
 
 	public setState(newState: ComponentState): void {
 		this.state = newState as { value: string };
