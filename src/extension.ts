@@ -77,7 +77,12 @@ export function activate(context: vscode.ExtensionContext) {
 					text,
 					zeroMin(line - searchRange),
 					Math.min(line + searchRange, lineCount)
-				);
+				).sort((a, b) => {
+					if (a.line === line && b.line === line) return a.character - b.character
+					if (a.line === line) return -1;
+					if (b.line === line) return 1;
+					return 0;
+				});
 				targets = finder
 					.generateTargets(positions.length)
 					.filter((_, index) => !!positions[index])

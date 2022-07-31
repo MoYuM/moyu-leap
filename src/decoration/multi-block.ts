@@ -48,7 +48,6 @@ class MultiBlock implements Component {
     const types = this.createType();
     const disposers: Array<() => void> = [];
     types.forEach((t, index) => {
-      console.log('hhhhhh',range[index].end.line ,range[index].start.line,range[index].start.character, range[index].end.character)
       vscode.window.activeTextEditor?.setDecorations(t, [range[index]])
       disposers.push(t.dispose);
     })
