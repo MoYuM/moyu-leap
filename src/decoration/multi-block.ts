@@ -18,24 +18,20 @@ class MultiBlock implements Component {
     const types = this.state.values.map(val => {
       const defaultCss = {
         position: 'absolute',
-        top: '-20px',
-        height: '20px',
-        display: `inline-block`,
-        padding: '0 4px',
-        color: CONFIG.COLOR,
-        ['background-color']: CONFIG.BACKGROUNDCOLOR,
-        ['border-radius']: '2px',
-        ['line-height']: '20px',
+        top: '18px',
+        ['color']: '#F2BD1D',
+        ['border-top']: '2px solid #37A652',
         ['z-index']: 1,
         ['pointer-events']: 'none',
         ...this.style,
       };
 
-      const css = objectToCssString(defaultCss);
+
+      const css1 = objectToCssString(defaultCss);
       const type = vscode.window.createTextEditorDecorationType({
         before: {
           contentText: val,
-          textDecoration: `none; ${css}`
+          textDecoration: `none; ${css1}`
         },
       })
       return type;

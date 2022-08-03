@@ -64,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const line = getCurrent()?.line;
 		if (line === undefined) return;
 
+		let input = '';
 		let isFirst = true;
 		let targets: { value: string, range: vscode.Range }[] = [];
 
@@ -72,6 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const dh = new Decoration({ MultiBlock });
 
 		const handleInput = (text: string) => {
+
 			if (isFirst) {
 				const positions = finder.findLetterBetweenLines(
 					text,
@@ -99,17 +101,26 @@ export function activate(context: vscode.ExtensionContext) {
 
 				isFirst = false;
 			} else {
-				const isFound = targets.filter(i => i.value.endsWith(text)).length === 1;
+				input = input + text.trim();
+				const isFound = targets.filter(i => isMatch(i.value, input)).length === 1;
 				if (isFound) {
 					moveTo(targets.find(i => i.value.includes(text))?.range.start);
 					clear();
 				} else {
-					targets = targets.filter(i => i.value.includes(text));
-					dh.setState('MultiBlock', { values: targets.map(i => i.value) });
-					dh.dispose();
-					dh.draw(targets.map(i => i.range));
+					targets = targets.filter(i => isMatch(i.value, input));
+					if (targets.length) {
+						dh.setState('MultiBlock', { values: targets.map(i => i.value) });
+						dh.dispose();
+						dh.draw(targets.map(i => i.range));
+					} else {
+						clear();
+					}
 				}
 			}
+		}
+
+		const isMatch = (text: string, input: string) => {
+			return input.split('').every((i, index) => text.charAt(index) === i);
 		}
 
 		const clear = () => {
