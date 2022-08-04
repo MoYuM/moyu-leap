@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { moveTo, select, getCurrentWordAndRange, getCurrent, zeroMin } from './utils';
+import { moveTo, select, getCurrentWordAndRange, getCurrent, zeroMin, isMatch } from './utils';
 import finder from './finder';
 import * as CONFIG from './constant';
 import Decoration from './decoration/base';
@@ -119,9 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
-		const isMatch = (text: string, input: string) => {
-			return input.split('').every((i, index) => text.charAt(index) === i);
-		}
+
 
 		const clear = () => {
 			executeCommand('setContext', 'moyu.searchActive', false);
@@ -161,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const currentText = dh.getState('Input')?.value;
 			const currentList = dh.getState('List')?.list;
 			const value = currentText + text.trim()
-			const { label, key } = currentList?.find((i: { label: string, key: string }) => i?.label?.includes(value)) || {};
+			const { label, key } = currentList?.find((i: { label: string, key: string }) => isMatch(i.label, value)) || {};
 
 			dh.update('Input', { value });
 			if (key) {
@@ -253,21 +251,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
-	return registerCommand('type', (e) => {
-		return callback(e)
-	});
+	return registerCommand('type', (e) => callback(e));
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
-
-
-function findLetterPositionInline(letter: string, lineCount: number): (vscode.Position | undefined) {
-	const line = vscode.window.activeTextEditor?.document.lineAt(lineCount);
-	if (line?.isEmptyOrWhitespace) return;
-
-	return new vscode.Position(
-		lineCount,
-		line?.firstNonWhitespaceCharacterIndex || 0 + (line?.text.indexOf(letter) || 0)
-	)
-}

@@ -105,3 +105,7 @@ export const setContext = (command: string, value: any) => {
  * 最小不会小于零
  */
 export const zeroMin = (val: number) => Math.max(val, 0);
+
+export const isMatch = (text: string, input: string) => {
+  return input.split('').every((i, index) => text.charAt(index) === i);
+}
