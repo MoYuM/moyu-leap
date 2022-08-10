@@ -22,6 +22,8 @@ class MultiBlock implements Component {
         ['color']: '#F2BD1D',
         ['border-top']: '2px solid #37A652',
         ['z-index']: 1,
+        ['font-weight']: '700',
+        ['font-size']: '20px',
         ['pointer-events']: 'none',
         ...this.style,
       };
