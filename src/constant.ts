@@ -54,7 +54,7 @@ export const TEMPLETE: TempleteType[] = [
     name: 'useState',
     command: 'useState',
     newLine: false,
-    body: "const [${TEXT}, set${FIRST_UP_CASE}] = React.useState();"
+    body: "const [${TEXT}, set${FIRST_UP_CASE}] = React.useState($0);"
   },
   {
     name: 'tag',
