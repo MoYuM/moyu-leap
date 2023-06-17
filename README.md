@@ -1,3 +1,7 @@
+
+### 改用 neovim 了，不再维护
+我的 neovim 配置：https://github.com/MoYuM/nvim
+
 # Moyu-Template
 
 以 vscode 插件的形式提供更多快捷指令，尽量减少使用鼠标的次数。
