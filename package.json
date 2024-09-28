@@ -11,7 +11,6 @@
   },
   "categories": [
     "Keymaps",
-    "Snippets",
     "Other"
   ],
   "activationEvents": [
@@ -21,74 +20,19 @@
   "contributes": {
     "commands": [
       {
-        "command": "moyu.new file",
-        "title": "new file"
-      },
-      {
-        "command": "moyu.new component",
-        "title": "new component"
-      },
-      {
-        "command": "moyu.new component in global",
-        "title": "new component in global"
-      },
-      {
-        "command": "moyu.new page",
-        "title": "new page"
+        "command": "moyu.search mode",
+        "title": "moyu search"
       }
     ],
     "keybindings": [
-      {
-        "command": "moyu.select neareast word",
-        "key": "cmd+e"
-      },
-      {
-        "command": "moyu.select next word",
-        "key": "shift+cmd+."
-      },
-      {
-        "command": "moyu.select pervious word",
-        "key": "shift+cmd+,"
-      },
-      {
-        "command": "moyu.move to next bracket",
-        "key": "shift+cmd+9"
-      },
       {
         "command": "moyu.search mode",
         "key": "cmd+m"
       },
       {
-        "command": "moyu.move up",
-        "key": "alt+k"
-      },
-      {
-        "command": "moyu.move down",
-        "key": "alt+j"
-      },
-      {
-        "command": "moyu.snippet mode",
-        "key": "cmd+k"
-      },
-      {
         "command": "moyu.escape",
         "key": "escape",
         "when": "moyu.snippetActive || moyu.searchActive"
-      },
-      {
-        "command": "moyu.backspace",
-        "key": "backspace",
-        "when": "moyu.snippetActive"
-      },
-      {
-        "command": "moyu.up",
-        "key": "up",
-        "when": "moyu.snippetActive"
-      },
-      {
-        "command": "moyu.down",
-        "key": "down",
-        "when": "moyu.snippetActive"
       }
     ]
   },
