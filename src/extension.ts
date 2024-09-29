@@ -1,259 +1,187 @@
-import * as vscode from 'vscode';
-import { moveTo, select, getCurrentWordAndRange, getCurrent, zeroMin, isMatch } from './utils';
-import finder from './finder';
-import * as CONFIG from './constant';
-import Decoration from './decoration/base';
-import Block from './decoration/block';
-import MultiBlock from './decoration/multi-block';
-import List from './decoration/list';
-import { createSnippetByTemplete, editSnippet } from './snippet';
+import * as vscode from "vscode";
+import { moveTo, getCurrent, zeroMin, isMatch } from "./utils";
+import finder from "./finder";
+import Decoration from "./decoration/base";
+import MultiBlock from "./decoration/multi-block";
 
-const { executeCommand, registerTextEditorCommand, registerCommand } = vscode.commands;
-
+const { executeCommand, registerTextEditorCommand, registerCommand } =
+  vscode.commands;
 
 export function activate(context: vscode.ExtensionContext) {
-	/**
-	 * select nearest word
-	 */
-	// registerTextEditorCommand('moyu.select neareast word', () => {
-	// 	const { range } = getCurrentWordAndRange();
-	// 	select(range);
-	// });
+  /**
+   * moyu.search mode
+   */
+  registerTextEditorCommand("moyu.search mode", () => {
+    executeCommand("hideSuggestWidget");
+    executeCommand("setContext", "moyu.searchActive", true);
 
+    let input = "";
+    let showingLabel = false;
+    let isFirst = true;
+    let targets: { value: string; range: vscode.Range }[] = [];
 
-	/**
-	 * moyu.move up 5 lines
-	 */
-	// registerTextEditorCommand('moyu.move up', () => {
-	// 	const current = vscode.window.activeTextEditor?.selection.active;
-	// 	moveTo(
-	// 		current?.with(
-	// 			current.line - CONFIG.MOVE_LINES <= 0
-	// 				? 0
-	// 				: current.line - CONFIG.MOVE_LINES
-	// 		),
-	// 		{
-	// 			withScroll: true
-	// 		}
-	// 	);
-	// });
+    const endLine =
+      vscode.window.activeTextEditor?.visibleRanges[0].end.line || 0;
+    const currentLine = vscode.window.activeTextEditor?.selection.active.line;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const dh = new Decoration({ MultiBlock });
 
+    if (currentLine === undefined) {
+      return;
+    }
 
-	/**
-	 * moyu.move down 5 lines
-	 */
-	// registerTextEditorCommand('moyu.move down', () => {
-	// 	const current = vscode.window.activeTextEditor?.selection.active;
-	// 	const newPosition = current?.with(
-	// 		Math.min(
-	// 			current.line + CONFIG.MOVE_LINES,
-	// 			vscode.window.activeTextEditor?.document.lineCount as number
-	// 		)
-	// 	);
-	// 	moveTo(newPosition, { withScroll: true });
-	// });
+    const handleInput = (text: string) => {
+      input += text;
+      const length = input.length;
 
+      // 完成 label 阶段
+      if (showingLabel && input.length > 2) {
+        console.log("aa");
+        targets = targets
+          .filter((i) => i.value[0] === text)
+          .map((i) => ({ ...i, value: i.value.slice(1) }));
 
-	/**
-	 * moyu.search mode
-	 */
-	registerTextEditorCommand('moyu.search mode', () => {
-		executeCommand('hideSuggestWidget');
-		executeCommand('setContext', 'moyu.searchActive', true);
+        // 只有一个结果，直接跳过去
+        if (targets.length === 1) {
+          console.log("bb");
+          moveTo(targets[0].range.start);
+          clear();
+          return;
+        } else {
+          console.log("cc");
+          // 有多个结果，显示 label
+          dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
+          dh.dispose();
+          dh.draw(targets.map((i) => i.range));
+          return;
+        }
+      }
 
-		const line = getCurrent()?.line;
-		console.log('aa', line);
-		if (line === undefined) {return;}
+      // 2 char
+      if (length === 2) {
+        console.log("dd");
+        const positions = finder.findLetterBetweenLines(
+          input,
+          currentLine,
+          endLine
+        );
 
-		let input = '';
-		let isFirst = true;
-		let targets: { value: string, range: vscode.Range }[] = [];
+        // 只有一个结果，直接跳过去
+        if (positions.length === 1) {
+          console.log("ee");
 
-		const searchRange = 20;
-		const lineCount = vscode.window.activeTextEditor?.document.lineCount || 0;
-		const dh = new Decoration({ MultiBlock });
+          moveTo(positions[0]);
+          clear();
+          return;
+        }
 
-		const handleInput = (text: string) => {
+        // 有多个结果，显示 label
+        if (positions.length > 1) {
+          console.log(
+            "ff",
+            positions,
+            finder.generateTargets(positions.length)
+          );
 
-			if (isFirst) {
-				const positions = finder.findLetterBetweenLines(
-					text,
-					zeroMin(line - searchRange),
-					Math.min(line + searchRange, lineCount)
-				).sort((a, b) => {
-					if (a.line === line && b.line === line) {return a.character - b.character;}
-					if (a.line === line) {return -1;}
-					if (b.line === line) {return 1;}
-					return 0;
-				});
-				targets = finder
-					.generateTargets(positions.length)
-					.filter((_, index) => !!positions[index])
-					.map((i, index) => {
-						const pos = positions[index];
-						const range: vscode.Range = new vscode.Range(pos, pos.with(pos.line, pos.character + 1));
-						return {
-							value: i,
-							range: range
-						};
-					});
-				dh.setState('MultiBlock', { values: targets.map(i => i.value) });
-				dh.draw(targets.map(i => i.range));
+          try {
+            targets = finder
+              .generateTargets(positions.length)
+              .map((i, index) => {
+                const pos = positions[index];
+                const range: vscode.Range = new vscode.Range(
+                  pos,
+                  pos.with(pos.line, pos.character + 1)
+                );
+                return {
+                  value: i,
+                  range: range,
+                };
+              });
+          } catch (error) {
+            console.log("error", error);
+          }
 
-				isFirst = false;
-			} else {
-				input = input + text.trim();
-				const isFound = targets.filter(i => isMatch(i.value, input)).length === 1;
-				if (isFound) {
-					moveTo(targets.find(i => i.value.includes(text))?.range.start);
-					clear();
-				} else {
-					targets = targets.filter(i => isMatch(i.value, input));
-					if (targets.length) {
-						dh.setState('MultiBlock', { values: targets.map(i => i.value) });
-						dh.dispose();
-						dh.draw(targets.map(i => i.range));
-					} else {
-						clear();
-					}
-				}
-			}
-		};
+          console.log("aaa", targets);
+          dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
+          dh.draw(targets.map((i) => i.range));
+          showingLabel = true;
+          return;
+        }
+      }
 
+      // if (isFirst) {
+      //   const positions = finder
+      //     .findLetterBetweenLines(text, currentLine, endLine)
+      //     .sort((a, b) => {
+      //       if (a.line === currentLine && b.line === currentLine) {
+      //         return a.character - b.character;
+      //       }
+      //       if (a.line === currentLine) {
+      //         return -1;
+      //       }
+      //       if (b.line === currentLine) {
+      //         return 1;
+      //       }
+      //       return 0;
+      //     });
+      //   targets = finder
+      //     .generateTargets(positions.length)
+      //     .filter((_, index) => !!positions[index])
+      //     .map((i, index) => {
+      //       const pos = positions[index];
+      //       const range: vscode.Range = new vscode.Range(
+      //         pos,
+      //         pos.with(pos.line, pos.character + 1)
+      //       );
+      //       return {
+      //         value: i,
+      //         range: range,
+      //       };
+      //     });
+      //   console.log("targets", targets);
+      //   dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
+      //   dh.draw(targets.map((i) => i.range));
 
+      //   isFirst = false;
+      // } else {
+      //   input = input + text.trim();
+      //   const isFound =
+      //     targets.filter((i) => isMatch(i.value, input)).length === 1;
+      //   if (isFound) {
+      //     moveTo(targets.find((i) => i.value.includes(text))?.range.start);
+      //     clear();
+      //   } else {
+      //     targets = targets.filter((i) => isMatch(i.value, input));
+      //     if (targets.length) {
+      //       console.log("targets 2", targets);
+      //       dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
+      //       dh.dispose();
+      //       dh.draw(targets.map((i) => i.range));
+      //     } else {
+      //       clear();
+      //     }
+      //   }
+      // }
+    };
 
-		const clear = () => {
-			executeCommand('setContext', 'moyu.searchActive', false);
-			command.dispose();
-			dh.dispose();
-			targets = [];
-			escapeDisposer.dispose();
-		};
+    const clear = () => {
+      executeCommand("setContext", "moyu.searchActive", false);
+      command.dispose();
+      dh.dispose();
+      escapeDisposer.dispose();
+      targets = [];
+      input = "";
+      showingLabel = false;
+    };
 
-		const command = overrideDefaultTypeEvent(({ text }) => handleInput(text));
-		const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
-	});
-
-
-	/** 
-	 * snippet mode
-	 */
-	// registerTextEditorCommand('moyu.snippet mode', () => {
-	// 	const { range, word } = getCurrentWordAndRange();
-	// 	if (!(range && word)) return;
-
-	// 	executeCommand('hideSuggestWidget');
-	// 	executeCommand('setContext', 'moyu.snippetActive', true);
-
-	// 	const clear = () => {
-	// 		dh.dispose();
-	// 		listener.dispose();
-	// 		escapeDisposer.dispose();
-	// 		backspaceDisposer.dispose();
-	// 		upDisposer.dispose();
-	// 		downDisposer.dispose();
-	// 		executeCommand('setContext', 'moyu.snippetActive', false);
-	// 	};
-
-
-	// 	const handleInput = (text: string) => {
-	// 		const currentText = dh.getState('Input')?.value;
-	// 		const currentList = dh.getState('List')?.list;
-	// 		const value = currentText + text.trim()
-	// 		const { label, key } = currentList?.find((i: { label: string, key: string }) => isMatch(i.label, value)) || {};
-
-	// 		dh.update('Input', { value });
-	// 		if (key) {
-	// 			dh.update('List', { activeKey: key });
-	// 		}
-
-	// 		// type enter to confirm
-	// 		if (text === '\n') {
-
-	// 			// auto comfirm when there is activeKey
-	// 			const templete = CONFIG.TEMPLETE.find(i => i.command === (label || value));
-
-	// 			if (templete) {
-	// 				const snippet = createSnippetByTemplete(word, templete);
-	// 				editSnippet({
-	// 					snippet,
-	// 					newLine: templete?.newLine,
-	// 					position: range?.end,
-	// 					replaceRange: range,
-	// 				})
-	// 			}
-
-	// 			clear();
-	// 		}
-	// 	}
-
-	// 	const handleDelete = () => {
-	// 		const currentText = dh.getState('Input')?.value;
-
-	// 		if (currentText) {
-	// 			const newText = currentText.slice(0, currentText.length - 1)
-	// 			dh.update('Input', { value: newText });
-	// 		} else {
-	// 			clear(); // dispose input if there is no content to delete
-	// 		}
-	// 	}
-
-	// 	const handleUp = () => {
-	// 		const { activeKey, list } = dh.getState('List');
-	// 		if (activeKey) {
-	// 			const currentIndex = list.findIndex((i: { key: string }) => i.key === activeKey);
-	// 			const { key, label } = list.at(currentIndex - 1);
-	// 			dh.update('Input', { value: label });
-	// 			dh.update('List', { activeKey: key });
-	// 		} else {
-	// 			const { key, label } = list.at(-1);
-	// 			dh.update('Input', { value: label });
-	// 			dh.update('List', { activeKey: key });
-	// 		}
-	// 	}
-
-	// 	const handleDown = () => {
-	// 		const { activeKey, list } = dh.getState('List');
-	// 		if (activeKey) {
-	// 			const currentIndex = list.findIndex((i: { key: string }) => i.key === activeKey);
-	// 			const { key, label } = list.at(currentIndex + 1);
-	// 			dh.update('Input', { value: label });
-	// 			dh.update('List', { activeKey: key });
-	// 		} else {
-	// 			const { key, label } = list.at(0);
-	// 			dh.update('Input', { value: label });
-	// 			dh.update('List', { activeKey: key });
-	// 		}
-	// 	}
-
-	// 	const dh = new Decoration({ Input: Block, List });
-	// 	dh.setStyle('Input', {
-	// 		['background-color']: '#D0D8D9',
-	// 		['color']: '#40362E',
-	// 		['border-radius']: '5px',
-	// 		['font-weight']: '700',
-	// 		['box-shadow']: '0px 0px 16px 0px #D0D8D9',
-	// 	})
-	// 	dh.setState('List', {
-	// 		list: CONFIG.TEMPLETE.map(i => ({
-	// 			label: i.command,
-	// 			key: i.name
-	// 		})),
-	// 	})
-	// 	dh.draw([range]);
-
-	// 	const listener = dh.listen(handleInput);
-	// 	const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
-	// 	const backspaceDisposer = registerTextEditorCommand("moyu.backspace", handleDelete);
-	// 	const upDisposer = registerTextEditorCommand("moyu.up", handleUp);
-	// 	const downDisposer = registerTextEditorCommand("moyu.down", handleDown);
-	// })
+    const command = overrideDefaultTypeEvent(({ text }) => handleInput(text));
+    const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
+  });
 }
 
-
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
-	return registerCommand('type', (e) => callback(e));
+  return registerCommand("type", (e) => callback(e));
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}

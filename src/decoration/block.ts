@@ -1,63 +1,61 @@
-import * as vscode from 'vscode';
-import * as CONFIG from '../constant';
-import { Component, ComponentState } from './base';
-import { objectToCssString } from '../utils';
-
+import * as vscode from "vscode";
+import * as CONFIG from "../constant";
+import { Component, ComponentState } from "./base";
+import { objectToCssString } from "../utils";
 
 class Block implements Component {
-	state = {
-		value: '',
-	}
-	style?: Record<string, any>
+  state = {
+    value: "",
+  };
+  style?: Record<string, any>;
 
-	public createType(): vscode.TextEditorDecorationType[] {
-		const defaultCss = {
-			position: 'absolute',
-			top: '-20px',
-			height: '20px',
-			display: `inline-block`,
-			padding: '0 4px',
-			color: CONFIG.COLOR,
-			['background-color']: CONFIG.BACKGROUNDCOLOR,
-			['border-radius']: '2px',
-			['line-height']: '20px',
-			['z-index']: 1,
-			['pointer-events']: 'none',
-			['min-width']: '30px',
-			...this.style,
-		};
+  public createType(): vscode.TextEditorDecorationType[] {
+    const defaultCss = {
+      position: "absolute",
+      top: "-20px",
+      height: "20px",
+      display: `inline-block`,
+      padding: "0 4px",
+      color: CONFIG.COLOR,
+      ["background-color"]: CONFIG.BACKGROUNDCOLOR,
+      ["border-radius"]: "2px",
+      ["line-height"]: "20px",
+      ["z-index"]: 1,
+      ["pointer-events"]: "none",
+      ["min-width"]: "30px",
+      ...this.style,
+    };
 
-		const css = objectToCssString(defaultCss);
-		const type = vscode.window.createTextEditorDecorationType({
-			before: {
-				contentText: this.state.value,
-				textDecoration: `none; ${css}`
-			},
-		})
+    const css = objectToCssString(defaultCss);
+    const type = vscode.window.createTextEditorDecorationType({
+      before: {
+        contentText: this.state.value,
+        textDecoration: `none; ${css}`,
+      },
+    });
 
-		return [type];
-	}
+    return [type];
+  }
 
-	draw(range: vscode.Range[]): (() => void)[] {
-		const type = this.createType()[0];
-		if (type) {
-			vscode.window.activeTextEditor?.setDecorations(type, range)
-			return [type.dispose]
-		}
-		return [];
-	}
+  draw(range: vscode.Range[]): (() => void)[] {
+    const type = this.createType()[0];
+    if (type) {
+      vscode.window.activeTextEditor?.setDecorations(type, range);
+      return [type.dispose];
+    }
+    return [];
+  }
 
+  public setState(newState: ComponentState): void {
+    this.state = newState as { value: string };
+  }
 
-	public setState(newState: ComponentState): void {
-		this.state = newState as { value: string };
-	}
-
-	public setStyle(newStyle: Record<string, any>): void {
-		this.style = {
-			...this.style,
-			...newStyle,
-		}
-	}
+  public setStyle(newStyle: Record<string, any>): void {
+    this.style = {
+      ...this.style,
+      ...newStyle,
+    };
+  }
 }
 
 export default Block;

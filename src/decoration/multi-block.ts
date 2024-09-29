@@ -1,43 +1,40 @@
-import * as vscode from 'vscode';
-import * as CONFIG from '../constant';
-import { Component, ComponentState } from './base';
-import { objectToCssString, select } from '../utils';
-import Block from './block';
+import * as vscode from "vscode";
+import * as CONFIG from "../constant";
+import { Component, ComponentState } from "./base";
+import { objectToCssString, select } from "../utils";
+import Block from "./block";
 
 class MultiBlock implements Component {
-
   state = {
-    values: []
+    values: [],
   };
   style = {};
 
-  constructor() {
-  }
+  constructor() {}
 
   createType(): vscode.TextEditorDecorationType[] {
-    const types = this.state.values.map(val => {
+    const types = this.state.values.map((val) => {
       const defaultCss = {
-        position: 'absolute',
-        top: '18px',
-        ['color']: '#F2BD1D',
-        ['border-top']: '2px solid #37A652',
-        ['z-index']: 1,
-        ['font-weight']: '700',
-        ['font-size']: '20px',
-        ['pointer-events']: 'none',
+        position: "absolute",
+        top: "18px",
+        ["color"]: "#F2BD1D",
+        ["border-top"]: "2px solid #37A652",
+        ["z-index"]: 1,
+        ["font-weight"]: "700",
+        ["font-size"]: "20px",
+        ["pointer-events"]: "none",
         ...this.style,
       };
-
 
       const css1 = objectToCssString(defaultCss);
       const type = vscode.window.createTextEditorDecorationType({
         before: {
           contentText: val,
-          textDecoration: `none; ${css1}`
+          textDecoration: `none; ${css1}`,
         },
-      })
+      });
       return type;
-    })
+    });
 
     return types;
   }
@@ -46,9 +43,9 @@ class MultiBlock implements Component {
     const types = this.createType();
     const disposers: Array<() => void> = [];
     types.forEach((t, index) => {
-      vscode.window.activeTextEditor?.setDecorations(t, [range[index]])
+      vscode.window.activeTextEditor?.setDecorations(t, [range[index]]);
       disposers.push(t.dispose);
-    })
+    });
     return disposers;
   }
 
@@ -56,14 +53,14 @@ class MultiBlock implements Component {
     this.state = {
       ...this.state,
       ...newState,
-    }
+    };
   }
 
   setStyle(newStyle: Record<string, any>): void {
     this.style = {
       ...this.style,
       ...newStyle,
-    }
+    };
   }
 }
 
