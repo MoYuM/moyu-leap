@@ -7,12 +7,25 @@ import { Target } from "./interface";
 const { executeCommand, registerTextEditorCommand, registerCommand } =
   vscode.commands;
 
+function testMask() {
+  const activeTextEditor = vscode.window.activeTextEditor;
+  const endLine = activeTextEditor?.visibleRanges[0].end.line || 0;
+  const currentLine = activeTextEditor?.selection.active.line;
+  const type = vscode.window.createTextEditorDecorationType({
+    color: "red",
+  });
+  const range = new vscode.Range(
+    new vscode.Position(currentLine || 0, 0),
+    new vscode.Position(endLine || 0, 0)
+  );
+  vscode.window.activeTextEditor?.setDecorations(type, [range]);
+}
+
 export function activate(context: vscode.ExtensionContext) {
   /**
    * moyu.search mode
    */
   registerTextEditorCommand("moyu.search mode", () => {
-    executeCommand("hideSuggestWidget");
     executeCommand("setContext", "moyu.searchActive", true);
 
     let input = "";
@@ -22,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
     const activeTextEditor = vscode.window.activeTextEditor;
     const endLine = activeTextEditor?.visibleRanges[0].end.line || 0;
     const currentLine = activeTextEditor?.selection.active.line;
+
     const label = new Label();
 
     if (currentLine === undefined) {
@@ -31,6 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
     const handleInput = (text: string) => {
       input += text;
       const length = input.length;
+      console.log("input", input);
 
       // 完成 label 阶段
       if (showingLabel && input.length > 2) {
@@ -58,6 +73,12 @@ export function activate(context: vscode.ExtensionContext) {
           currentLine,
           endLine
         );
+
+        // 没有结果，清空
+        if (positions.length === 0) {
+          clear();
+          return;
+        }
 
         // 只有一个结果，直接跳过去
         if (positions.length === 1) {

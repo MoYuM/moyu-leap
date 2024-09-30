@@ -4,12 +4,10 @@ import * as vscode from "vscode";
 
 const defaultCss = {
   position: "absolute",
-  top: "18px",
-  ["color"]: "#F2BD1D",
-  ["border-top"]: "2px solid #37A652",
+  ["background-color"]: "#FF6600",
+  ["color"]: "#333",
   ["z-index"]: 1,
-  ["font-weight"]: "700",
-  ["font-size"]: "20px",
+  ["font-size"]: "16px",
   ["pointer-events"]: "none",
 };
 
