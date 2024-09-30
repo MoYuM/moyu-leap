@@ -1,17 +1,25 @@
 {
-  "name": "moyu",
-  "displayName": "moyu-mode",
+  "name": "moyu-leap",
+  "displayName": "moyu-leap",
   "publisher": "moyum",
-  "repository": "https://github.com/MoYuM/moyu-template",
-  "description": "包含了个人常用功能的vscode插件",
+  "repository": "https://github.com/MoYuM/moyu-leap",
+  "description": "leap.nvim 的 vscode 版本",
   "icon": "images/icon.png",
-  "version": "0.3.5",
+  "version": "0.4",
   "engines": {
     "vscode": "^1.62.0"
   },
   "categories": [
     "Keymaps",
     "Other"
+  ],
+  "keywords": [
+    "leap",
+    "nvim",
+    "motion",
+    "vim",
+    "vscode",
+    "extension"
   ],
   "activationEvents": [
     "*"
