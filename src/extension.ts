@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { moveTo, getCurrent, zeroMin, isMatch } from "./utils";
+import { moveTo } from "./utils";
 import finder from "./finder";
-import Decoration from "./decoration/base";
-import MultiBlock from "./decoration/multi-block";
+import Label from "./label/label";
+import { Target } from "./interface";
 
 const { executeCommand, registerTextEditorCommand, registerCommand } =
   vscode.commands;
@@ -17,14 +17,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     let input = "";
     let showingLabel = false;
-    let isFirst = true;
-    let targets: { value: string; range: vscode.Range }[] = [];
+    let targets: Target[] = [];
 
-    const endLine =
-      vscode.window.activeTextEditor?.visibleRanges[0].end.line || 0;
-    const currentLine = vscode.window.activeTextEditor?.selection.active.line;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const dh = new Decoration({ MultiBlock });
+    const activeTextEditor = vscode.window.activeTextEditor;
+    const endLine = activeTextEditor?.visibleRanges[0].end.line || 0;
+    const currentLine = activeTextEditor?.selection.active.line;
+    const label = new Label();
 
     if (currentLine === undefined) {
       return;
@@ -44,15 +42,14 @@ export function activate(context: vscode.ExtensionContext) {
         // 只有一个结果，直接跳过去
         if (targets.length === 1) {
           console.log("bb");
-          moveTo(targets[0].range.start);
+          moveTo(targets[0].position);
           clear();
           return;
         } else {
           console.log("cc");
           // 有多个结果，显示 label
-          dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
-          dh.dispose();
-          dh.draw(targets.map((i) => i.range));
+          label.setTargets(targets);
+          label.draw();
           return;
         }
       }
@@ -86,88 +83,27 @@ export function activate(context: vscode.ExtensionContext) {
           try {
             targets = finder
               .generateTargets(positions.length)
-              .map((i, index) => {
-                const pos = positions[index];
-                const range: vscode.Range = new vscode.Range(
-                  pos,
-                  pos.with(pos.line, pos.character + 1)
-                );
-                return {
-                  value: i,
-                  range: range,
-                };
-              });
+              .map((i, index) => ({
+                value: i,
+                position: positions[index],
+              }));
           } catch (error) {
             console.log("error", error);
           }
 
           console.log("aaa", targets);
-          dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
-          dh.draw(targets.map((i) => i.range));
+          label.setTargets(targets);
+          label.draw();
           showingLabel = true;
           return;
         }
       }
-
-      // if (isFirst) {
-      //   const positions = finder
-      //     .findLetterBetweenLines(text, currentLine, endLine)
-      //     .sort((a, b) => {
-      //       if (a.line === currentLine && b.line === currentLine) {
-      //         return a.character - b.character;
-      //       }
-      //       if (a.line === currentLine) {
-      //         return -1;
-      //       }
-      //       if (b.line === currentLine) {
-      //         return 1;
-      //       }
-      //       return 0;
-      //     });
-      //   targets = finder
-      //     .generateTargets(positions.length)
-      //     .filter((_, index) => !!positions[index])
-      //     .map((i, index) => {
-      //       const pos = positions[index];
-      //       const range: vscode.Range = new vscode.Range(
-      //         pos,
-      //         pos.with(pos.line, pos.character + 1)
-      //       );
-      //       return {
-      //         value: i,
-      //         range: range,
-      //       };
-      //     });
-      //   console.log("targets", targets);
-      //   dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
-      //   dh.draw(targets.map((i) => i.range));
-
-      //   isFirst = false;
-      // } else {
-      //   input = input + text.trim();
-      //   const isFound =
-      //     targets.filter((i) => isMatch(i.value, input)).length === 1;
-      //   if (isFound) {
-      //     moveTo(targets.find((i) => i.value.includes(text))?.range.start);
-      //     clear();
-      //   } else {
-      //     targets = targets.filter((i) => isMatch(i.value, input));
-      //     if (targets.length) {
-      //       console.log("targets 2", targets);
-      //       dh.setState("MultiBlock", { values: targets.map((i) => i.value) });
-      //       dh.dispose();
-      //       dh.draw(targets.map((i) => i.range));
-      //     } else {
-      //       clear();
-      //     }
-      //   }
-      // }
     };
 
     const clear = () => {
       executeCommand("setContext", "moyu.searchActive", false);
       command.dispose();
-      dh.dispose();
+      label.clear();
       escapeDisposer.dispose();
       targets = [];
       input = "";
