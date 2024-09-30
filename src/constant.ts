@@ -1,4 +1,3 @@
-import { TempleteType, VariableType } from "./interface";
 
 /**
  * 字体颜色
@@ -38,67 +37,3 @@ export const EXITSEARCHMODE = "`";
  * 选择多少个 key 作为 entry
  */
 export const PICKENTRYSCOUNT = 7;
-
-/**
- * 选择光标上下多少行解析
- */
-export const PARSE_LINE_COUNT = 40;
-
-/**
- * 上下快速移动光标时，移动的行数
- */
-export const MOVE_LINES = 5;
-
-/**
- * 模板
- */
-export const TEMPLETE: TempleteType[] = [
-  {
-    name: "log",
-    command: "log",
-    newLine: true,
-    body: "console.log('${TEXT} ==> ',${TEXT})",
-  },
-  {
-    name: "useState",
-    command: "useState",
-    newLine: false,
-    body: "const [${TEXT}, set${FIRST_UP_CASE}] = React.useState($0);",
-  },
-  {
-    name: "tag",
-    command: "singleTag",
-    newLine: false,
-    body: "<${TEXT} $0/>",
-  },
-  {
-    name: "tags",
-    command: "doubleTag",
-    newLine: false,
-    body: "<${TEXT}>$0</${TEXT}>",
-  },
-];
-
-/**
- * 模板变量
- */
-export const VARIABLE: VariableType = [
-  {
-    name: "TEXT",
-    transformer: (text) => text,
-  },
-  {
-    name: "FIRST_UP_CASE",
-    transformer: (text) =>
-      text
-        .split("")
-        .map((i, index) => {
-          if (index === 0) {
-            return i.toUpperCase();
-          } else {
-            return i;
-          }
-        })
-        .join(""),
-  },
-];

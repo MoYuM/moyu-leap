@@ -69,10 +69,14 @@ export const getCurrent = () => {
  */
 export const getCurrentWordAndRange = () => {
   const current = getCurrent();
-  if (!current) return {};
+  if (!current) {
+    return {};
+  }
   const range =
     vscode.window.activeTextEditor?.document.getWordRangeAtPosition(current);
-  if (!range) return {};
+  if (!range) {
+    return {};
+  }
   const word = vscode.window.activeTextEditor?.document.getText(range);
   if (range && word) {
     return {
@@ -106,7 +110,3 @@ export const setContext = (command: string, value: any) => {
  * 最小不会小于零
  */
 export const zeroMin = (val: number) => Math.max(val, 0);
-
-export const isMatch = (text: string, input: string) => {
-  return input.split("").every((i, index) => text.charAt(index) === i);
-};
