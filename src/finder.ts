@@ -30,7 +30,9 @@ const finder: Finder = {
     const regResult = line?.text.matchAll(reg) || [];
 
     for (const i of regResult) {
-      positions.push(new vsc.Position(line.lineNumber, i.index));
+      if (i.index !== undefined) {
+        positions.push(new vsc.Position(line.lineNumber, i.index));
+      }
     }
 
     return positions;

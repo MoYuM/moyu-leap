@@ -5,7 +5,7 @@
   "repository": "https://github.com/MoYuM/moyu-leap",
   "description": "leap.nvim 的 vscode 版本",
   "icon": "images/icon.png",
-  "version": "0.4",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.62.0"
   },
