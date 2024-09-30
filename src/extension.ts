@@ -34,19 +34,16 @@ export function activate(context: vscode.ExtensionContext) {
 
       // 完成 label 阶段
       if (showingLabel && input.length > 2) {
-        console.log("aa");
         targets = targets
           .filter((i) => i.value[0] === text)
           .map((i) => ({ ...i, value: i.value.slice(1) }));
 
         // 只有一个结果，直接跳过去
         if (targets.length === 1) {
-          console.log("bb");
           moveTo(targets[0].position);
           clear();
           return;
         } else {
-          console.log("cc");
           // 有多个结果，显示 label
           label.setTargets(targets);
           label.draw();
@@ -56,7 +53,6 @@ export function activate(context: vscode.ExtensionContext) {
 
       // 2 char
       if (length === 2) {
-        console.log("dd");
         const positions = finder.findLetterBetweenLines(
           input,
           currentLine,
@@ -65,8 +61,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         // 只有一个结果，直接跳过去
         if (positions.length === 1) {
-          console.log("ee");
-
           moveTo(positions[0]);
           clear();
           return;
@@ -74,24 +68,13 @@ export function activate(context: vscode.ExtensionContext) {
 
         // 有多个结果，显示 label
         if (positions.length > 1) {
-          console.log(
-            "ff",
-            positions,
-            finder.generateTargets(positions.length)
-          );
+          targets = finder
+            .generateTargets(positions.length)
+            .map((i, index) => ({
+              value: i,
+              position: positions[index],
+            }));
 
-          try {
-            targets = finder
-              .generateTargets(positions.length)
-              .map((i, index) => ({
-                value: i,
-                position: positions[index],
-              }));
-          } catch (error) {
-            console.log("error", error);
-          }
-
-          console.log("aaa", targets);
           label.setTargets(targets);
           label.draw();
           showingLabel = true;
