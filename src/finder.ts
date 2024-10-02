@@ -24,9 +24,18 @@ export const findInRange = (text: string, range?: vsc.Range) => {
 
     for (const i of result) {
       if (i.index !== undefined) {
-        positions.push(
-          range.start.translate(lineIndex).with({ character: i.index })
-        );
+        if (lineIndex === 0) {
+          // First line
+          // just relative to the cursor position
+          positions.push(range.start.translate({ characterDelta: i.index }));
+        } else {
+          // Other lines
+          // The line number is relative to the cursor
+          // The character number is absolute
+          positions.push(
+            range.start.translate(lineIndex).with({ character: i.index })
+          );
+        }
       }
     }
   });
