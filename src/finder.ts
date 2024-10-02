@@ -1,6 +1,9 @@
 import * as vsc from "vscode";
 import * as CONFIG from "./constant";
 
+const validateRange = vsc.window.activeTextEditor?.document.validateRange;
+const getText = vsc.window.activeTextEditor?.document.getText;
+
 type Finder = {
   findLetterPositionInline: (
     letter: string,
@@ -12,6 +15,36 @@ type Finder = {
     endLine: number
   ) => vsc.Position[] | [];
   generateTargets: (count: number) => string[];
+};
+
+/**
+ * Find the position of the text in the range
+ * @param text string
+ * @param range Range
+ * @returns Position[]
+ */
+export const findInRange = (text: string, range?: vsc.Range) => {
+  if (!text || !range || !validateRange?.(range)) {
+    return [];
+  }
+
+  const reg = new RegExp(text, "g");
+  const textInRang = getText?.(range);
+  const positions: vsc.Position[] = [];
+
+  textInRang?.split("\n").forEach((line, lineIndex) => {
+    const result = line?.matchAll(reg) || [];
+
+    for (const i of result) {
+      if (i.index !== undefined) {
+        positions.push(
+          range.start.translate(lineIndex).with({ character: i.index })
+        );
+      }
+    }
+  });
+
+  return positions;
 };
 
 const finder: Finder = {
