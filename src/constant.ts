@@ -1,4 +1,3 @@
-
 /**
  * 字体颜色
  */
@@ -36,4 +35,4 @@ export const EXITSEARCHMODE = "`";
 /**
  * 选择多少个 key 作为 entry
  */
-export const PICKENTRYSCOUNT = 7;
+export const PICK_ENTRIES_COUNT = 7;

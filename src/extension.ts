@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { moveTo } from "./utils";
-import finder, { findInRange } from "./finder";
+import { findInRange, generateTargets } from "./finder";
 import Label from "./label/label";
 import { Target } from "./interface";
 
@@ -89,7 +89,7 @@ function leap({ type }: { type: "forward" | "backward" }) {
 
       // 有多个结果，显示 label
       if (positions.length > 1) {
-        targets = finder.generateTargets(positions.length).map((i, index) => ({
+        targets = generateTargets(positions.length).map((i, index) => ({
           value: i,
           position: positions[index],
         }));
