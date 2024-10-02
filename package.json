@@ -22,7 +22,8 @@
     "extension"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished",
+    "onCommand:type"
   ],
   "main": "./out/extension.js",
   "contributes": {
