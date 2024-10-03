@@ -112,13 +112,15 @@ function leap({
 
       // 有多个结果，显示 label
       if (positions.length > 1) {
-        const newTargets = generateTargets(positions.length).map(
+        const [firstOne, ...newTargets] = generateTargets(positions.length).map(
           (i, index) => ({
             value: i,
             position: positions[index],
           })
         );
 
+        // 默认跳到第一个 target
+        moveTo(firstOne.position);
         label.setTargets(newTargets);
         label.draw();
         set({
@@ -167,16 +169,16 @@ export function activate(context: vscode.ExtensionContext) {
   /**
    * moyu.next target
    */
-  const disposeNextTarget = registerTextEditorCommand(
-    "moyu.next target",
-    () => {
-      console.log("moyu.next target");
-    }
-  );
+  // const disposeNextTarget = registerTextEditorCommand(
+  //   "moyu.next target",
+  //   () => {
+  //     console.log("moyu.next target");
+  //   }
+  // );
 
   context.subscriptions.push(disposeForwardSearch);
   context.subscriptions.push(disposeBackwardSearch);
-  context.subscriptions.push(disposeNextTarget);
+  // context.subscriptions.push(disposeNextTarget);
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
