@@ -50,6 +50,11 @@
         "command": "moyu.escape",
         "key": "escape",
         "when": "moyu.searchActive"
+      },
+      {
+        "command": "moyu.backspace",
+        "key": "backspace",
+        "when": "moyu.searchActive"
       }
     ]
   },

@@ -2,8 +2,7 @@ import * as vscode from "vscode";
 import { moveTo } from "./utils";
 import { findInRange, generateTargets } from "./finder";
 import Label from "./label/label";
-import { MoyuStore } from "./interface";
-import { MOYU_STORE_KEY } from "./constant";
+import { Global } from "./global";
 
 const { executeCommand, registerTextEditorCommand, registerCommand } =
   vscode.commands;
@@ -22,24 +21,8 @@ function testMask() {
   vscode.window.activeTextEditor?.setDecorations(type, [range]);
 }
 
-function leap({
-  type,
-  context,
-}: {
-  type: "forward" | "backward";
-  context: vscode.ExtensionContext;
-}) {
-  const set = (store: Partial<MoyuStore>) => {
-    const currentStore = get();
-    context.workspaceState.update(MOYU_STORE_KEY, {
-      ...currentStore,
-      ...store,
-    });
-  };
-
-  const get = () => {
-    return context.workspaceState.get<MoyuStore>(MOYU_STORE_KEY);
-  };
+function leap({ type }: { type: "forward" | "backward" }) {
+  const { set, get } = Global;
 
   const activeTextEditor = vscode.window.activeTextEditor;
   const currentLine = activeTextEditor?.selection.active.line;
@@ -59,7 +42,7 @@ function leap({
   }
 
   const handleInput = (text: string) => {
-    console.log("text", text === "\n");
+    console.log("text", text);
     const input = get()?.input || "";
     const targets = get()?.targets || [];
     const showingLabel = get()?.showingLabel || false;
@@ -155,6 +138,8 @@ function leap({
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  Global.context = context;
+
   /**
    * moyu.forward search
    */
@@ -162,7 +147,7 @@ export function activate(context: vscode.ExtensionContext) {
     "moyu.forward search",
     () => {
       executeCommand("setContext", "moyu.searchActive", true);
-      leap({ type: "forward", context });
+      leap({ type: "forward" });
     }
   );
 
@@ -173,23 +158,20 @@ export function activate(context: vscode.ExtensionContext) {
     "moyu.backward search",
     () => {
       executeCommand("setContext", "moyu.searchActive", true);
-      leap({ type: "backward", context });
+      leap({ type: "backward" });
     }
   );
 
   /**
    * moyu.next target
    */
-  // const disposeNextTarget = registerTextEditorCommand(
-  //   "moyu.next target",
-  //   () => {
-  //     console.log("moyu.next target");
-  //   }
-  // );
+  const disposeBackspace = registerTextEditorCommand("moyu.backspace", () => {
+    leap({ type: "backward" });
+  });
 
   context.subscriptions.push(disposeForwardSearch);
   context.subscriptions.push(disposeBackwardSearch);
-  // context.subscriptions.push(disposeNextTarget);
+  context.subscriptions.push(disposeBackspace);
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
