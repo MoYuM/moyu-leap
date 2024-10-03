@@ -59,6 +59,7 @@ function leap({
   }
 
   const handleInput = (text: string) => {
+    console.log("text", text === "\n");
     const input = get()?.input || "";
     const targets = get()?.targets || [];
     const showingLabel = get()?.showingLabel || false;
@@ -69,10 +70,20 @@ function leap({
     const length = newInput.length;
     console.log("input", input);
 
+    // enter 直接跳到下一个 target
+    if (text === "\n" && targets.length > 0) {
+      const [firstOne, ...newTargets] = targets;
+      moveTo(firstOne.position);
+      label.setTargets(newTargets);
+      label.draw();
+      set({ targets: newTargets });
+      return;
+    }
+
     // 完成 label 阶段
     if (showingLabel && newInput.length > 2) {
       const newTargets = targets
-        .filter((i) => i.value[0] === text)
+        .filter((i) => i.value.charAt(0) === text)
         .map((i) => ({ ...i, value: i.value.slice(1) }));
 
       set({ targets: newTargets });
