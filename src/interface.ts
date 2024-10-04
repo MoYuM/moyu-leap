@@ -9,4 +9,5 @@ export type MoyuStore = {
   input: string;
   targets: Target[];
   showingLabel: boolean;
+  index: number;
 };

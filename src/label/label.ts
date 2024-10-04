@@ -26,19 +26,15 @@ class Label {
     return type;
   }
 
-  draw() {
+  draw(targets: Target[]) {
     this.dispose();
 
-    for (const t of this.targets) {
+    for (const t of targets) {
       const type = this.createType(t.value);
       const range = new vscode.Range(t.position, t.position);
       vscode.window.activeTextEditor?.setDecorations(type, [range]);
       this.disposers.push(type.dispose);
     }
-  }
-
-  setTargets(targets: Target[]) {
-    this.targets = targets;
   }
 
   dispose() {
@@ -48,7 +44,6 @@ class Label {
 
   clear() {
     this.dispose();
-    this.targets = [];
   }
 }
 

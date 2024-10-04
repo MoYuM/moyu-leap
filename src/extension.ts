@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { moveTo } from "./utils";
-import { findInRange, generateTargets } from "./finder";
+import { findInRange } from "./finder";
 import Label from "./label/label";
-import { Global } from "./global";
+import { TargetsController } from "./targets";
 
 const { executeCommand, registerTextEditorCommand, registerCommand } =
   vscode.commands;
@@ -21,12 +21,51 @@ function testMask() {
   vscode.window.activeTextEditor?.setDecorations(type, [range]);
 }
 
-function leap({ type }: { type: "forward" | "backward" }) {
-  const { set, get } = Global;
+const label = new Label();
+const controller = new TargetsController();
+let _input: string = "";
 
+const handleInput = (text: string, type: "forward" | "backward") => {
+  const input = _input + text;
+  _input = input;
+  console.log("input", input, text);
+
+  if (text === "\n") {
+    handleMoveCursor(1);
+    return;
+  }
+
+  if (input.length === 1) {
+    // nothing;
+    return;
+  }
+
+  if (input.length === 2) {
+    handleSearch(input, type);
+    return;
+  }
+
+  if (input.length > 2) {
+    handleLabel(text);
+    return;
+  }
+};
+
+const clear = () => {
+  label.clear();
+  controller.clear();
+  _input = "";
+  executeCommand("setContext", "moyu.searchActive", false);
+};
+
+const handleMoveCursor = (num: number) => {
+  controller.move(num);
+  moveTo(controller.cursorPosition());
+  label.draw(controller.getLabelTargets());
+};
+
+const handleSearch = (input: string, type: "forward" | "backward") => {
   const activeTextEditor = vscode.window.activeTextEditor;
-  const currentLine = activeTextEditor?.selection.active.line;
-
   const currentPosition = activeTextEditor?.selection.active;
   const forwardRange = activeTextEditor?.visibleRanges[0].with({
     start: currentPosition,
@@ -34,112 +73,51 @@ function leap({ type }: { type: "forward" | "backward" }) {
   const backwardRange = activeTextEditor?.visibleRanges[0].with({
     end: currentPosition,
   });
+  const positions = findInRange(
+    input,
+    type === "forward" ? forwardRange : backwardRange
+  );
 
-  const label = new Label();
-
-  if (currentLine === undefined) {
+  // 没有结果，清空
+  if (positions.length === 0) {
+    clear();
     return;
   }
 
-  const handleInput = (text: string) => {
-    console.log("text", text);
-    const input = get()?.input || "";
-    const targets = get()?.targets || [];
-    const showingLabel = get()?.showingLabel || false;
+  // 只有一个结果，直接跳过去
+  if (positions.length === 1) {
+    moveTo(positions[0]);
+    clear();
+    return;
+  }
 
-    const newInput = input + text;
-    set({ input: newInput });
+  // 有多个结果，显示 label
+  if (positions.length > 1) {
+    controller.generate(positions);
 
-    const length = newInput.length;
-    console.log("input", input);
+    const targets = controller.getLabelTargets();
+    const firstPosition = controller.cursorPosition();
 
-    // enter 直接跳到下一个 target
-    if (text === "\n" && targets.length > 0) {
-      const [firstOne, ...newTargets] = targets;
-      moveTo(firstOne.position);
-      label.setTargets(newTargets);
-      label.draw();
-      set({ targets: newTargets });
-      return;
-    }
+    // 默认跳到第一个 target
+    moveTo(firstPosition);
+    label.draw(targets);
+  }
+};
 
-    // 完成 label 阶段
-    if (showingLabel && newInput.length > 2) {
-      const newTargets = targets
-        .filter((i) => i.value.charAt(0) === text)
-        .map((i) => ({ ...i, value: i.value.slice(1) }));
+const handleLabel = (text: string) => {
+  controller.filter(text);
 
-      set({ targets: newTargets });
-
-      // 只有一个结果，直接跳过去
-      if (newTargets.length === 1) {
-        moveTo(newTargets[0].position);
-        clear();
-        return;
-      } else {
-        // 有多个结果，显示 label
-        label.setTargets(newTargets);
-        label.draw();
-        return;
-      }
-    }
-
-    // 2 char
-    if (length === 2) {
-      const positions = findInRange(
-        newInput,
-        type === "forward" ? forwardRange : backwardRange
-      );
-
-      // 没有结果，清空
-      if (positions.length === 0) {
-        clear();
-        return;
-      }
-
-      // 只有一个结果，直接跳过去
-      if (positions.length === 1) {
-        moveTo(positions[0]);
-        clear();
-        return;
-      }
-
-      // 有多个结果，显示 label
-      if (positions.length > 1) {
-        const [firstOne, ...newTargets] = generateTargets(positions.length).map(
-          (i, index) => ({
-            value: i,
-            position: positions[index],
-          })
-        );
-
-        // 默认跳到第一个 target
-        moveTo(firstOne.position);
-        label.setTargets(newTargets);
-        label.draw();
-        set({
-          targets: newTargets,
-          showingLabel: true,
-        });
-      }
-    }
-  };
-
-  const clear = () => {
-    command.dispose();
-    escapeDisposer.dispose();
-    label.clear();
-    set({ input: "", showingLabel: false });
-    executeCommand("setContext", "moyu.searchActive", false);
-  };
-
-  const command = overrideDefaultTypeEvent(({ text }) => handleInput(text));
-  const escapeDisposer = registerTextEditorCommand("moyu.escape", clear);
-}
+  // 只有一个结果，直接跳过去
+  if (controller.getTargets().length === 1) {
+    moveTo(controller.cursorPosition());
+    clear();
+  } else {
+    // 有多个结果，显示 label
+    label.draw(controller.getLabelTargets());
+  }
+};
 
 export function activate(context: vscode.ExtensionContext) {
-  Global.context = context;
-
   /**
    * moyu.forward search
    */
@@ -147,7 +125,7 @@ export function activate(context: vscode.ExtensionContext) {
     "moyu.forward search",
     () => {
       executeCommand("setContext", "moyu.searchActive", true);
-      leap({ type: "forward" });
+      overrideDefaultTypeEvent(({ text }) => handleInput(text, "forward"));
     }
   );
 
@@ -158,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
     "moyu.backward search",
     () => {
       executeCommand("setContext", "moyu.searchActive", true);
-      leap({ type: "backward" });
+      overrideDefaultTypeEvent(({ text }) => handleInput(text, "backward"));
     }
   );
 
@@ -166,12 +144,15 @@ export function activate(context: vscode.ExtensionContext) {
    * moyu.next target
    */
   const disposeBackspace = registerTextEditorCommand("moyu.backspace", () => {
-    leap({ type: "backward" });
+    handleMoveCursor(-1);
   });
+
+  const disposeEscape = registerTextEditorCommand("moyu.escape", clear);
 
   context.subscriptions.push(disposeForwardSearch);
   context.subscriptions.push(disposeBackwardSearch);
   context.subscriptions.push(disposeBackspace);
+  context.subscriptions.push(disposeEscape);
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
@@ -179,4 +160,7 @@ function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  console.log("4");
+  clear();
+}
