@@ -60,15 +60,15 @@ export const moveTo = (
   }
 };
 
-export const getCurrent = () => {
+export const getCurrentPosition = () => {
   return vscode.window.activeTextEditor?.selection.active;
 };
 
 /**
  * get the word in the range that return by getWordRangeAtPosition()
  */
-export const getCurrentWordAndRange = () => {
-  const current = getCurrent();
+export const getCurrentPositionWordAndRange = () => {
+  const current = getCurrentPosition();
   if (!current) {
     return {};
   }

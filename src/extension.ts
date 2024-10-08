@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getCurrent, moveTo, setContext, type } from "./utils";
+import { getCurrentPosition, moveTo, setContext, type } from "./utils";
 import { findInRange } from "./finder";
 import Label from "./label/label";
 import { TargetsController } from "./targets";
@@ -114,7 +114,7 @@ const handleLabel = (text: string) => {
 
   // No match target, type the text, and quit
   if (labelTargets.length === 0) {
-    const currentPosition = getCurrent();
+    const currentPosition = getCurrentPosition();
     if (currentPosition) {
       type(text, currentPosition);
     }
