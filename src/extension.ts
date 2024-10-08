@@ -1,25 +1,17 @@
 import * as vscode from "vscode";
-import { getCurrentPosition, moveTo, setContext, type } from "./utils";
+import {
+  getCurrentPosition,
+  moveTo,
+  setContext,
+  type,
+  getVisibleRange,
+} from "./utils";
 import { findInRange } from "./finder";
 import Label from "./label/label";
 import { TargetsController } from "./targets";
 
 const { executeCommand, registerTextEditorCommand, registerCommand } =
   vscode.commands;
-
-function testMask() {
-  const activeTextEditor = vscode.window.activeTextEditor;
-  const endLine = activeTextEditor?.visibleRanges[0].end.line || 0;
-  const currentLine = activeTextEditor?.selection.active.line;
-  const type = vscode.window.createTextEditorDecorationType({
-    color: "red",
-  });
-  const range = new vscode.Range(
-    new vscode.Position(currentLine || 0, 0),
-    new vscode.Position(endLine || 0, 0)
-  );
-  vscode.window.activeTextEditor?.setDecorations(type, [range]);
-}
 
 const label = new Label();
 const controller = new TargetsController();
@@ -70,33 +62,29 @@ const handleMoveCursor = (num: number) => {
 };
 
 const handleSearch = (input: string, type: "forward" | "backward") => {
-  const activeTextEditor = vscode.window.activeTextEditor;
-  const currentPosition = activeTextEditor?.selection.active;
-  const forwardRange = activeTextEditor?.visibleRanges[0].with({
-    start: currentPosition,
-  });
-  const backwardRange = activeTextEditor?.visibleRanges[0].with({
-    end: currentPosition,
-  });
+  const currentPosition = getCurrentPosition();
+  const forwardRange = getVisibleRange()?.with({ start: currentPosition });
+  const backwardRange = getVisibleRange()?.with({ end: currentPosition });
+
   const positions = findInRange(
     input,
     type === "forward" ? forwardRange : backwardRange
   );
 
-  // 没有结果，清空
+  // No result, clear and quit
   if (positions.length === 0) {
     clear();
     return;
   }
 
-  // 只有一个结果，直接跳过去
+  // Only one result, move to the position, and quit
   if (positions.length === 1) {
     moveTo(positions[0]);
     clear();
     return;
   }
 
-  // 有多个结果，显示 label
+  // Multiple results, generate targets, and draw the label
   if (positions.length > 1) {
     controller.generate(positions);
 

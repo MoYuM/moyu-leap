@@ -64,6 +64,10 @@ export const getCurrentPosition = () => {
   return vscode.window.activeTextEditor?.selection.active;
 };
 
+export const getVisibleRange = () => {
+  return vscode.window.activeTextEditor?.visibleRanges[0];
+};
+
 /**
  * get the word in the range that return by getWordRangeAtPosition()
  */
