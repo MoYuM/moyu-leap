@@ -165,11 +165,21 @@ export function activate(context: vscode.ExtensionContext) {
    */
   const disposeEscape = registerTextEditorCommand("moyu.escape", clear);
 
+  const disposeListener = vscode.window.onDidChangeTextEditorSelection((e) => {
+    const haveMatched = controller
+      .getTargets()
+      .some((t) => t.position.isEqual(e.selections[0].start));
+    if (!haveMatched) {
+      clear();
+    }
+  });
+
   context.subscriptions.push(disposeForwardSearch);
   context.subscriptions.push(disposeBackwardSearch);
   context.subscriptions.push(disposePreviousTarget);
   context.subscriptions.push(disposeEscape);
   context.subscriptions.push(disposeNextTarget);
+  context.subscriptions.push(disposeListener);
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
