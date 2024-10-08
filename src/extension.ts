@@ -24,11 +24,6 @@ const handleInput = (text: string, type: "forward" | "backward") => {
   _input = input;
   console.log("input", input, text);
 
-  if (text === "\n") {
-    handleMoveCursor(1);
-    return;
-  }
-
   if (input.length === 1) {
     // nothing;
     return;
@@ -145,18 +140,35 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   /**
+   * moyu.previous target
+   */
+  const disposePreviousTarget = registerTextEditorCommand(
+    "moyu.previous target",
+    () => {
+      handleMoveCursor(-1);
+    }
+  );
+
+  /**
    * moyu.next target
    */
-  const disposeBackspace = registerTextEditorCommand("moyu.backspace", () => {
-    handleMoveCursor(-1);
-  });
+  const disposeNextTarget = registerTextEditorCommand(
+    "moyu.next target",
+    () => {
+      handleMoveCursor(1);
+    }
+  );
 
+  /**
+   * moyu.escape
+   */
   const disposeEscape = registerTextEditorCommand("moyu.escape", clear);
 
   context.subscriptions.push(disposeForwardSearch);
   context.subscriptions.push(disposeBackwardSearch);
-  context.subscriptions.push(disposeBackspace);
+  context.subscriptions.push(disposePreviousTarget);
   context.subscriptions.push(disposeEscape);
+  context.subscriptions.push(disposeNextTarget);
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {

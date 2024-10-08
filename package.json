@@ -30,11 +30,23 @@
     "commands": [
       {
         "command": "moyu.forward search",
-        "title": "moyu forward search"
+        "title": "Moyu leap forward search"
       },
       {
         "command": "moyu.backward search",
-        "title": "moyu backward search"
+        "title": "Moyu leap backward search"
+      },
+      {
+        "command": "moyu.previous target",
+        "title": "Move to previous target"
+      },
+      {
+        "command": "moyu.next target",
+        "title": "Move to next target"
+      },
+      {
+        "command": "moyu.escape",
+        "title": "Escape moyu leap"
       }
     ],
     "keybindings": [
@@ -52,8 +64,13 @@
         "when": "moyu.searchActive"
       },
       {
-        "command": "moyu.backspace",
+        "command": "moyu.previous target",
         "key": "backspace",
+        "when": "moyu.searchActive"
+      },
+      {
+        "command": "moyu.next target",
+        "key": "enter",
         "when": "moyu.searchActive"
       }
     ]
