@@ -15,10 +15,9 @@ const { executeCommand, registerTextEditorCommand, registerCommand } =
 
 const label = new Label();
 const controller = new TargetsController();
+const disposes: vscode.Disposable[] = [];
 
 let _input: string = "";
-let disposeDefaultType: (() => void) | null = null;
-const disposes: vscode.Disposable[] = [];
 
 const handleInput = (text: string, type: "forward" | "backward") => {
   const input = _input + text;
@@ -47,7 +46,6 @@ const handleInput = (text: string, type: "forward" | "backward") => {
 };
 
 const clear = () => {
-  console.log("[clear moyu]", disposeDefaultType);
   label.clear();
   controller.clear();
   _input = "";
