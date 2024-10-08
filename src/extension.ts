@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { moveTo } from "./utils";
+import { getCurrent, moveTo, setContext, type } from "./utils";
 import { findInRange } from "./finder";
 import Label from "./label/label";
 import { TargetsController } from "./targets";
@@ -23,7 +23,10 @@ function testMask() {
 
 const label = new Label();
 const controller = new TargetsController();
+
 let _input: string = "";
+let disposeDefaultType: (() => void) | null = null;
+const disposes: vscode.Disposable[] = [];
 
 const handleInput = (text: string, type: "forward" | "backward") => {
   const input = _input + text;
@@ -52,9 +55,11 @@ const handleInput = (text: string, type: "forward" | "backward") => {
 };
 
 const clear = () => {
+  console.log("[clear moyu]", disposeDefaultType);
   label.clear();
   controller.clear();
   _input = "";
+  disposes.forEach((i) => i.dispose());
   executeCommand("setContext", "moyu.searchActive", false);
 };
 
@@ -105,15 +110,28 @@ const handleSearch = (input: string, type: "forward" | "backward") => {
 };
 
 const handleLabel = (text: string) => {
-  controller.filter(text);
+  const labelTargets = controller.search(text);
 
-  // 只有一个结果，直接跳过去
-  if (controller.getTargets().length === 1) {
-    moveTo(controller.cursorPosition());
+  // No match target, type the text, and quit
+  if (labelTargets.length === 0) {
+    const currentPosition = getCurrent();
+    if (currentPosition) {
+      type(text, currentPosition);
+    }
     clear();
-  } else {
-    // 有多个结果，显示 label
-    label.draw(controller.getLabelTargets());
+    return;
+  }
+
+  // Match one target, move to the target, and quit
+  if (labelTargets.length === 1) {
+    moveTo(labelTargets[0].position);
+    clear();
+    return;
+  }
+
+  // Match multiple targets, search and update the label
+  if (labelTargets.length > 1) {
+    label.draw(labelTargets);
   }
 };
 
@@ -124,7 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
   const disposeForwardSearch = registerTextEditorCommand(
     "moyu.forward search",
     () => {
-      executeCommand("setContext", "moyu.searchActive", true);
+      setContext("moyu.searchActive", true);
       overrideDefaultTypeEvent(({ text }) => handleInput(text, "forward"));
     }
   );
@@ -135,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
   const disposeBackwardSearch = registerTextEditorCommand(
     "moyu.backward search",
     () => {
-      executeCommand("setContext", "moyu.searchActive", true);
+      setContext("moyu.searchActive", false);
       overrideDefaultTypeEvent(({ text }) => handleInput(text, "backward"));
     }
   );
@@ -156,11 +174,11 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function overrideDefaultTypeEvent(callback: (arg: { text: string }) => void) {
-  return registerCommand("type", (e) => callback(e));
+  const command = registerCommand("type", (e) => callback(e));
+  disposes.push(command);
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-  console.log("4");
   clear();
 }

@@ -5,6 +5,7 @@ import { Position } from "vscode";
 export class TargetsController {
   private targets: Target[] = [];
   private index: number = 0;
+  private searchText: string = "";
 
   constructor() {}
 
@@ -43,16 +44,18 @@ export class TargetsController {
     return this.targets;
   }
 
-  filter(text: string) {
-    this.targets = this.targets
-      .filter((i) => i.value.charAt(0) === text)
-      .map((i) => ({ ...i, value: i.value.slice(1) }));
+  search(text: string) {
+    this.searchText += text;
+    return this.getLabelTargets().filter(
+      (i) => i.value.slice(0, this.searchText.length) === this.searchText
+    );
   }
 
   clear() {
     console.log("clear targets");
     this.targets = [];
     this.index = 0;
+    this.searchText = "";
   }
 
   generateTargets = (count: number) => {

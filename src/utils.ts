@@ -110,3 +110,13 @@ export const setContext = (command: string, value: any) => {
  * 最小不会小于零
  */
 export const zeroMin = (val: number) => Math.max(val, 0);
+
+/**
+ * Type in position
+ */
+export const type = (text: string, position: vscode.Position) => {
+  vscode.window.activeTextEditor?.insertSnippet(
+    new vscode.SnippetString(text),
+    position
+  );
+};
