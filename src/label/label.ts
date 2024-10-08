@@ -41,10 +41,6 @@ class Label {
     this.disposers.forEach((disposer) => disposer?.());
     this.disposers = [];
   }
-
-  clear() {
-    this.dispose();
-  }
 }
 
 export default Label;

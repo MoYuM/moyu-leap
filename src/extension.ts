@@ -15,9 +15,12 @@ const { executeCommand, registerTextEditorCommand, registerCommand } =
 
 const label = new Label();
 const controller = new TargetsController();
+let _input: string = "";
+
 const disposes: vscode.Disposable[] = [];
 
-let _input: string = "";
+disposes.push(label);
+disposes.push(controller);
 
 const handleInput = (text: string, type: "forward" | "backward") => {
   const input = _input + text;
@@ -41,8 +44,6 @@ const handleInput = (text: string, type: "forward" | "backward") => {
 };
 
 const clear = () => {
-  label.clear();
-  controller.clear();
   _input = "";
   disposes.forEach((i) => i.dispose());
   executeCommand("setContext", "moyu.searchActive", false);

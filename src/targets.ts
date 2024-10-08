@@ -51,7 +51,7 @@ export class TargetsController {
     );
   }
 
-  clear() {
+  dispose() {
     console.log("clear targets");
     this.targets = [];
     this.index = 0;
