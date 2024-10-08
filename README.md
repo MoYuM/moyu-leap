@@ -18,6 +18,8 @@ Moyu Leap 能帮助你用最少的按键次数将光标移动到指定位置，�
 
 - `cmd+m` 向前搜索
 - `cmd+y` 向后搜索
+- `enter` 跳到下一个 label
+- `esc` 跳到上一个 label
 
 ## TODO
 
